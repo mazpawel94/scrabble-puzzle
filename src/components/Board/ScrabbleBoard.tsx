@@ -27,6 +27,7 @@ const ScrabbleBoard: React.FC<ScrabbleBoardProps> = ({
     fieldSize,
     font,
     gridPath,
+    revealedLocation,
     handleOnLayout,
     handleTouch,
   } = useScrabbleBoard(onFieldPress, containerRef);
@@ -82,6 +83,16 @@ const ScrabbleBoard: React.FC<ScrabbleBoardProps> = ({
             </Group>
           );
         })}
+        {revealedLocation.map(({ x, y }) => (
+          <Rect
+            key={`${x}-${y}`}
+            x={x * fieldSize}
+            y={y * fieldSize}
+            width={fieldSize}
+            height={fieldSize}
+            color="#32f0d6bd"
+          />
+        ))}
         {boardTiles.map((letter, i) => (
           <BoardTile
             key={i}

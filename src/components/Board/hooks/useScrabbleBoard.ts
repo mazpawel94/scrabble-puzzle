@@ -42,8 +42,12 @@ const useScrabbleBoard = (
   const boardRef = useRef<View>(null!);
   const canvasRef = useCanvasRef();
 
-  const { currentLettersOnBoard, fieldSize, userSolutionTiles } =
-    useGlobalContext();
+  const {
+    currentLettersOnBoard,
+    fieldSize,
+    revealedLocation,
+    userSolutionTiles,
+  } = useGlobalContext();
   const { setBoardLayoutParams } = useGlobalActionsContext();
 
   const font = useMemo(() => matchFont(fontStyle), []);
@@ -121,6 +125,7 @@ const useScrabbleBoard = (
     font,
     gridPath,
     diamondPaths,
+    revealedLocation,
     handleOnLayout,
     handleTouch,
   };

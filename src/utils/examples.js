@@ -2085,7 +2085,7 @@ export const examples = [
     },
   },
   {
-    letters: "EIJKMNY",
+    letters: "FIANOWY",
     words: [
       {
         index: 1,

@@ -17,14 +17,15 @@ const screenPadding = 12;
 
 interface IGlobalContext {
   boardLayoutParams: IBoardLayoutParams;
+  currentLetters: string;
+  currentLettersOnBoard: IBoardTile[];
+  currentTask: Task | undefined;
   index: number;
   fieldSize: number;
-  tasks: Task[];
+  revealedLocation: { x: number; y: number }[];
   snackbarMessage: string;
-  currentLetters: string;
-  currentTask: Task | undefined;
+  tasks: Task[];
   userSolutionTiles: IBoardTile[];
-  currentLettersOnBoard: IBoardTile[];
 }
 
 interface IGlobalActionsContext {
@@ -33,26 +34,31 @@ interface IGlobalActionsContext {
   setBoardLayoutParams: React.Dispatch<
     React.SetStateAction<IBoardLayoutParams>
   >;
+  setRevealedLocation: React.Dispatch<
+    React.SetStateAction<{ x: number; y: number }[]>
+  >;
   setUserSolutionTiles: React.Dispatch<React.SetStateAction<IBoardTile[]>>;
   setSnackbarMessage: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const GlobalContext = createContext<IGlobalContext>({
   boardLayoutParams: { x: 0, y: 0, width: 0, height: 0 },
-  snackbarMessage: "",
-  index: 0,
-  fieldSize: 0,
-  userSolutionTiles: [],
-  tasks: [],
-  currentLettersOnBoard: [],
   currentLetters: "",
+  currentLettersOnBoard: [],
   currentTask: undefined,
+  fieldSize: 0,
+  index: 0,
+  revealedLocation: [],
+  snackbarMessage: "",
+  tasks: [],
+  userSolutionTiles: [],
 });
 
 export const GlobalActionsContext = createContext<IGlobalActionsContext>({
   incrementIndex: () => {},
   setSelectedLevel: () => {},
   setBoardLayoutParams: () => {},
+  setRevealedLocation: () => {},
   setUserSolutionTiles: () => {},
   setSnackbarMessage: () => {},
 });
@@ -68,6 +74,9 @@ export const GlobalContextProvider = ({ children }: any) => {
     useState<IBoardLayoutParams>({ x: 0, y: 0, width: 0, height: 0 });
   const [index, setIndex] = useState<number>(0);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [revealedLocation, setRevealedLocation] = useState<
+    { x: number; y: number }[]
+  >([]);
   const [selectedLevel, setSelectedLevel] = useState<LEVEL>("unknown");
   const [userSolutionTiles, setUserSolutionTiles] = useState<IBoardTile[]>([]);
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
@@ -107,6 +116,10 @@ export const GlobalContextProvider = ({ children }: any) => {
     setTasks(tasks);
   }, [selectedLevel]);
 
+  useEffect(() => {
+    setRevealedLocation([]);
+  }, [index]);
+
   const values = {
     currentLetters,
     currentTask,
@@ -114,20 +127,23 @@ export const GlobalContextProvider = ({ children }: any) => {
     boardLayoutParams,
     index,
     fieldSize,
-    tasks,
+    revealedLocation,
     snackbarMessage,
+    tasks,
     userSolutionTiles,
   };
   const actions = useMemo(
     () => ({
       incrementIndex,
       setBoardLayoutParams,
+      setRevealedLocation,
       setSelectedLevel,
       setUserSolutionTiles,
       setSnackbarMessage,
     }),
     [],
   );
+
   return (
     <GlobalContext.Provider value={values}>
       <GlobalActionsContext.Provider value={actions}>

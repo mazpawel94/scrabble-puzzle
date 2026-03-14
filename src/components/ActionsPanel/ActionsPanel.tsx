@@ -5,7 +5,8 @@ import NewDiagramForm from "../NewDiagramForm";
 import useActionsPanel from "./hooks/useActionsPanel";
 
 export const ActionPanel = () => {
-  const { handleNextDiagram, handleCheck, resetRack } = useActionsPanel();
+  const { handleNextDiagram, handleCheck, resetRack, showHint } =
+    useActionsPanel();
   const [formIsOpen, setFormIsOpen] = useState<boolean>(false);
 
   return (
@@ -40,7 +41,7 @@ export const ActionPanel = () => {
           >
             Dodaj
           </Button>
-          <Button mode="outlined" onPress={() => {}} style={styles.button}>
+          <Button mode="outlined" onPress={showHint} style={styles.button}>
             Podpowiedź
           </Button>
           <Button mode="outlined" onPress={() => {}} style={styles.button}>
