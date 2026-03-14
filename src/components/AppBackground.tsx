@@ -1,9 +1,9 @@
 import {
-    Canvas,
-    LinearGradient,
-    Path,
-    Skia,
-    vec,
+  Canvas,
+  LinearGradient,
+  Path,
+  Skia,
+  vec,
 } from "@shopify/react-native-skia";
 import React from "react";
 import { StyleSheet, useWindowDimensions } from "react-native";
@@ -19,7 +19,8 @@ import { StyleSheet, useWindowDimensions } from "react-native";
  * ustawienie go jako pierwszego dziecka w _layout.tsx.
  */
 const AppBackground: React.FC = () => {
-  const { width, height } = useWindowDimensions();
+  const { width, height: h } = useWindowDimensions();
+  const height = h + 100;
 
   const path = React.useMemo(() => {
     // Przeliczamy punkty clip-path z % na piksele

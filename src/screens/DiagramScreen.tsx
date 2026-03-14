@@ -40,6 +40,7 @@ export default function DiagramScreen() {
       <View style={[styles.lettersPanel]}>
         <Rack containerRef={containerRef} panelHeight={panelHeight} />
       </View>
+      <View style={[styles.space]}></View>
       <Toast />
       <ActionPanel />
     </SafeAreaView>
@@ -66,6 +67,9 @@ const styles = StyleSheet.create({
   webInfo: {
     color: "#6B6B85",
     fontSize: 14,
+  },
+  space: {
+    flexGrow: 1,
   },
   boardArea: {
     width: "100%",

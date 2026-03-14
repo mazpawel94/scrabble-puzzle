@@ -52,7 +52,13 @@ const useActionsPanel = () => {
       setSnackbarMessage("Poprawne rozwiązanie 🎉");
     else setSnackbarMessage("Spróbuj jeszcze raz");
   }, [currentTask, userSolutionTiles]);
-  return { handleNextDiagram, handleCheck, resetRack, showHint };
+  return {
+    handleNextDiagram,
+    handleCheck,
+    resetRack,
+    showHint,
+    isDisabledResetRack: userSolutionTiles.length === 0,
+  };
 };
 
 export default useActionsPanel;
