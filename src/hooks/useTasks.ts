@@ -1,5 +1,5 @@
 import api from "@/services/api";
-import { ApiResponse, Task } from "@/types";
+import { ApiResponse, LEVEL, Task } from "@/types";
 import { examples } from "@/utils/examples";
 import { useEffect, useState } from "react";
 
@@ -21,8 +21,8 @@ export const useTasks = () => {
     };
     fetchTasks();
   }, []);
-  const getTasksByLevel = (level: "easy" | "medium" | "hard" | "unknown") => {
-    if (level === "unknown") return [examples[101]];
+  const getTasksByLevel = (level: LEVEL) => {
+    if (level === "unknown") return examples;
 
     return tasks.filter((task) => task.level === level);
   };

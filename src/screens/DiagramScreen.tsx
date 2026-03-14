@@ -1,57 +1,47 @@
+import { useRef } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
-
-import ScrabbleBoardWithCoords from "@/components/ScrabbleBoardWithCoords";
-import ZoomablePanView from "@/components/ZoomablePanView";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { ActionPanel } from "@/components/ActionsPanel/ActionsPanel";
+import ScrabbleBoard from "@/components/Board/ScrabbleBoard";
+import Rack from "@/components/Rack/Rack";
+import Toast from "@/components/Toast";
 import useDiagramScreen from "./hooks/useDiagramScreen";
 
 export default function DiagramScreen() {
-  const {
-    currentTask,
-    width,
-    height,
-    level,
-    boardAreaHeight,
-    panelHeight,
-    fieldSize,
-    boardWidth,
-    boardHeight,
-    tasks,
-    handleFieldPress,
-  } = useDiagramScreen();
+  const { height, level, panelHeight, handleFieldPress } = useDiagramScreen();
+
+  const containerRef = useRef<View>(null!);
+
   return (
-    <SafeAreaView style={styles.root}>
-      {/* Górne 80% – plansza */}
+    <SafeAreaView ref={containerRef} style={styles.root} edges={["bottom"]}>
       <Text style={[styles.header, { height: height * 0.1 }]}>
         Poziom: {level}
       </Text>
-      <Text style={styles.subheader}>Zadań: {tasks.length}</Text>
-      <View style={[styles.boardArea, { height: boardAreaHeight }]}>
+      <View style={[styles.boardArea]}>
         {Platform.OS === "web" ? (
           <Text style={styles.webInfo}>Skia nie jest wspierana na web.</Text>
         ) : (
-          <ZoomablePanView
-            contentWidth={boardWidth}
-            contentHeight={boardHeight}
-            containerWidth={width}
-            containerHeight={boardAreaHeight}
-            minScale={1}
-            maxScale={5}
-          >
-            <ScrabbleBoardWithCoords
-              fieldSize={fieldSize}
-              onFieldPress={handleFieldPress}
-              boardTiles={currentTask?.lettersOnBoard || []}
-            />
-          </ZoomablePanView>
+          // <ZoomablePanView
+          //   contentWidth={boardWidth}
+          //   contentHeight={boardHeight}
+          //   containerWidth={width}
+          //   containerHeight={boardAreaHeight}
+          //   minScale={1}
+          //   maxScale={5}
+          // >
+          <ScrabbleBoard
+            containerRef={containerRef}
+            onFieldPress={handleFieldPress}
+          />
+          // </ZoomablePanView>
         )}
       </View>
-
-      {/* Dolne 20% – panel liter */}
-      <View style={[styles.lettersPanel, { height: panelHeight }]}>
-        {/* TODO: litery gracza */}
-        <Text style={styles.panelPlaceholder}>{currentTask?.letters}</Text>
+      <View style={[styles.lettersPanel]}>
+        <Rack containerRef={containerRef} panelHeight={panelHeight} />
       </View>
+      <Toast />
+      <ActionPanel />
     </SafeAreaView>
   );
 }
@@ -79,20 +69,18 @@ const styles = StyleSheet.create({
   },
   boardArea: {
     width: "100%",
-    justifyContent: "center",
+    justifyContent: "flex-end",
     alignItems: "center",
+    marginTop: 100,
   },
   lettersPanel: {
     width: "100%",
-    backgroundColor: "rgba(0,0,0,0.45)",
-    borderTopWidth: 1,
-    borderTopColor: "#1E1E2E",
+    // backgroundColor: "rgba(0, 0, 0, 0.45)",
+    // borderTopWidth: 1,
+    // borderTopColor: "#1E1E2E",
     justifyContent: "center",
     alignItems: "center",
-    paddingBottom: 50,
-  },
-  panelPlaceholder: {
-    color: "#6B6B85",
-    fontSize: 14,
+    paddingBottom: 10,
+    paddingTop: 10,
   },
 });

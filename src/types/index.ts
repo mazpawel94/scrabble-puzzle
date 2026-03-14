@@ -1,8 +1,9 @@
+export type LEVEL = "easy" | "medium" | "hard" | "unknown";
 export interface Task {
-  id: string;
-  level?: "easy" | "medium" | "hard";
-  title: string;
-  description: string;
+  id?: string;
+  level?: LEVEL;
+  title?: string;
+  description?: string;
   words: {
     coordinates: string;
     word: string;
@@ -19,8 +20,16 @@ export interface IBoardTile {
   x: number;
   y: number;
   letter: string;
+  isNewMove?: boolean;
 }
 
 export interface ApiResponse {
   tasks: Task[];
+}
+
+export interface IBoardLayoutParams {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }

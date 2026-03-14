@@ -127,3 +127,16 @@ word2Fields.forEach(([r, c]) => BONUS_MAP.set(r * 15 + c, "word2"));
 letter3Fields.forEach(([r, c]) => BONUS_MAP.set(r * 15 + c, "letter3"));
 letter2Fields.forEach(([r, c]) => BONUS_MAP.set(r * 15 + c, "letter2"));
 middleField.forEach(([r, c]) => BONUS_MAP.set(r * 15 + c, "middle"));
+
+export const word2Indexes = [...word2Fields, [7, 7]].map(
+  (el) => el[0] * 15 + el[1],
+);
+export const word3Indexes = word3Fields.map((el) => el[0] * 15 + el[1]);
+export const letter2Indexes = letter2Fields.map((el) => el[0] * 15 + el[1]);
+export const letter3Indexes = letter3Fields.map((el) => el[0] * 15 + el[1]);
+
+export const wordMultiplerByIndex = Array(15 * 15)
+  .fill(1)
+  .map((el, i) =>
+    word2Indexes.includes(i) ? 2 : word3Indexes.includes(i) ? 3 : 1,
+  );
