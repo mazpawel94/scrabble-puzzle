@@ -18,7 +18,7 @@ const useBoardTile = (size: number, letter: string | undefined) => {
   const letterFont = useMemo(() => makeFont(Math.floor(size / 2) + 2), [size]);
   const pointFont = useMemo(() => makeFont(Math.floor(size / 4)), [size]);
 
-  const isBlank = useMemo(() => letter === letter?.toLowerCase(), []);
+  const isBlank = useMemo(() => letter === letter?.toLowerCase(), [letter]);
 
   return { isBlank, letterFont, pointFont };
 };

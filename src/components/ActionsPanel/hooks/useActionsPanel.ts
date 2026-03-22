@@ -1,3 +1,5 @@
+import { useCallback, useEffect, useState } from "react";
+
 import {
   useGlobalActionsContext,
   useGlobalContext,
@@ -6,11 +8,11 @@ import {
   convertBoardStateToStringSolution,
   convertWordToLettersArray,
 } from "@/utils/convertCoordinates";
-import { useCallback } from "react";
 
 const useActionsPanel = () => {
   const {
     incrementIndex,
+    setRackLetters,
     setRevealedLocation,
     setSnackbarMessage,
     setUserSolutionTiles,
@@ -18,9 +20,48 @@ const useActionsPanel = () => {
   const { currentTask, currentLettersOnBoard, userSolutionTiles } =
     useGlobalContext();
 
-  const handleNextDiagram = useCallback(() => {
-    incrementIndex();
+  const [isBlankModalOpen, setIsBlankModalOpen] = useState<boolean>(false);
+  const [isActive, setIsActive] = useState<boolean>(true);
+
+  const defineBlank = useCallback((letter: string) => {
+    setUserSolutionTiles((prev) =>
+      prev.map((el) =>
+        el.letter === "?" ? { ...el, letter: letter.toLowerCase() } : el,
+      ),
+    );
+    setIsBlankModalOpen(false);
   }, []);
+
+  const giveUp = useCallback(() => {
+    setIsActive(false);
+    const solutionTiles = convertWordToLettersArray(
+      currentTask!.solution.word,
+      currentTask!.solution.coordinates,
+    );
+    setUserSolutionTiles(
+      solutionTiles.map((el) => ({ ...el, isNewMove: true })),
+    );
+    setRackLetters((prev) => prev.map((el) => ({ ...el, played: true })));
+  }, [currentTask]);
+
+  const handleCheck = useCallback(() => {
+    if (!userSolutionTiles.length)
+      return setSnackbarMessage("Ułóż jakieś słowo");
+    const res = convertBoardStateToStringSolution(
+      userSolutionTiles,
+      currentLettersOnBoard,
+    );
+
+    if (
+      currentTask?.solution.coordinates === res.coordinates &&
+      currentTask.solution.word === res.word
+    ) {
+      setSnackbarMessage("Poprawne rozwiązanie 🎉");
+      setIsActive(false);
+    } else setSnackbarMessage("Spróbuj jeszcze raz");
+  }, [currentTask, userSolutionTiles]);
+
+  const handleNextDiagram = useCallback(() => incrementIndex(), []);
 
   const resetRack = useCallback(() => {
     setUserSolutionTiles([]);
@@ -34,29 +75,23 @@ const useActionsPanel = () => {
     setRevealedLocation(positions.map((el) => ({ x: el.x, y: el.y })));
   }, [currentTask]);
 
-  const handleCheck = useCallback(() => {
-    const res = convertBoardStateToStringSolution(
-      userSolutionTiles,
-      currentLettersOnBoard,
-    );
+  useEffect(() => {
+    if (userSolutionTiles.some((el) => el.letter === "?"))
+      setIsBlankModalOpen(true);
+  }, [userSolutionTiles]);
 
-    // console.log({
-    //   solution: currentTask?.solution,
-    //   word: all.word,
-    //   coord: all.coordinates,
-    // });
-    if (
-      currentTask?.solution.coordinates === res.coordinates &&
-      currentTask.solution.word === res.word
-    )
-      setSnackbarMessage("Poprawne rozwiązanie 🎉");
-    else setSnackbarMessage("Spróbuj jeszcze raz");
-  }, [currentTask, userSolutionTiles]);
+  useEffect(() => setIsActive(true), [currentTask]);
+
   return {
-    handleNextDiagram,
+    defineBlank,
+    giveUp,
     handleCheck,
+    handleNextDiagram,
     resetRack,
     showHint,
+
+    isActive,
+    isBlankModalOpen,
     isDisabledResetRack: userSolutionTiles.length === 0,
   };
 };

@@ -1,26 +1,142 @@
-import { useGlobalActionsContext } from "@/contexts/GlobalContext";
+import {
+  useGlobalActionsContext,
+  useGlobalContext,
+} from "@/contexts/GlobalContext";
 import { LEVEL } from "@/types";
 import { useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect } from "react";
-import { useWindowDimensions } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useWindowDimensions, View } from "react-native";
+
+interface FloatingTileState {
+  letter: string;
+  absX: number;
+  absY: number;
+}
 
 const useDiagramScreen = () => {
   const { level } = useLocalSearchParams<{ level: string }>();
   const { height } = useWindowDimensions();
 
-  const { setSelectedLevel } = useGlobalActionsContext();
+  const {
+    boardLayoutParams,
+    currentLettersOnBoard,
+    fieldSize,
+    index,
+    userSolutionTiles,
+  } = useGlobalContext();
+
+  const { setRackLetters, setSelectedLevel, setUserSolutionTiles } =
+    useGlobalActionsContext();
+
+  const [floatingTile, setFloatingTile] = useState<FloatingTileState | null>(
+    null,
+  );
+
+  const containerRef = useRef<View>(null!);
+  // Offset lewej krawędzi kontenera względem ekranu — koryguje alignItems: "center"
+  const containerOffsetX = useRef(0);
 
   const panelHeight = height * 0.2;
 
-  const handleFieldPress = useCallback((row: number, col: number) => {
-    console.log(`Kliknięto pole [${row}, ${col}]`);
+  const checkIsBusy = useCallback(
+    (col: number, row: number) => {
+      return [...(currentLettersOnBoard || []), ...userSolutionTiles].some(
+        (el) => el.x === col && el.y === row,
+      );
+    },
+    [currentLettersOnBoard, userSolutionTiles],
+  );
+
+  const handleContainerLayout = useCallback(() => {
+    containerRef.current?.measure((_x, _y, _w, _h, pageX) => {
+      containerOffsetX.current = pageX;
+    });
   }, []);
+
+  const handleTilePress = (letter: string, absX: number, absY: number) => {
+    const col = Math.floor((absX - boardLayoutParams.x) / fieldSize);
+    const row = Math.floor((absY - boardLayoutParams.y) / fieldSize);
+    setUserSolutionTiles((prev) =>
+      prev.map((el) => ({ ...el, isMoved: el.x === col && el.y === row })),
+    );
+    // Koryguj X o offset kontenera (SafeAreaView z alignItems: "center")
+    setFloatingTile({ letter, absX: absX - containerOffsetX.current, absY });
+  };
+
+  const handleFloatingDragEnd = (
+    letter: string,
+    absX: number,
+    absY: number,
+  ) => {
+    setFloatingTile(null);
+
+    const isOverBoard =
+      absX >= boardLayoutParams.x &&
+      absX <= boardLayoutParams.x + boardLayoutParams.width &&
+      absY >= boardLayoutParams.y &&
+      absY <= boardLayoutParams.y + boardLayoutParams.height;
+
+    if (isOverBoard) {
+      const col = Math.floor((absX - boardLayoutParams.x) / fieldSize);
+      const row = Math.floor((absY - boardLayoutParams.y) / fieldSize);
+
+      const isBusy = checkIsBusy(col, row);
+      if (!isBusy) {
+        setUserSolutionTiles((prev) =>
+          prev.map((el) =>
+            el.isMoved ? { ...el, x: col, y: row, isMoved: false } : el,
+          ),
+        );
+      } else
+        setUserSolutionTiles((prev) =>
+          prev.map((el) => ({ ...el, isMoved: false })),
+        );
+    } else {
+      setUserSolutionTiles((prev) => prev.filter((el) => !el.isMoved));
+      const isBlank = letter === letter.toLowerCase();
+      setRackLetters((prev) =>
+        prev.map((el, index) =>
+          (el.letter === letter ||
+            (isBlank &&
+              el.letter === "?" &&
+              prev.findIndex((l) => l.letter === "?") === index)) &&
+          el.played
+            ? { ...el, played: false }
+            : el,
+        ),
+      );
+    }
+  };
+
+  const handleFieldPress = useCallback(
+    (row: number, col: number) => {
+      if (checkIsBusy(col, row)) return;
+
+      console.log(`Kliknięto pole [${row}, ${col}]`);
+    },
+    [checkIsBusy],
+  );
 
   useEffect(() => {
     setSelectedLevel(level as LEVEL);
   }, [level]);
 
-  return { height, level, panelHeight, handleFieldPress };
+  //jeżeli user odłożył wszystkie płytki
+  useEffect(() => {
+    if (!userSolutionTiles.length) setFloatingTile(null);
+  }, [userSolutionTiles]);
+
+  return {
+    floatingTile,
+    height,
+    index,
+    level,
+    panelHeight,
+    handleContainerLayout,
+    handleFieldPress,
+    handleFloatingDragEnd,
+    handleTilePress,
+  };
 };
 
 export default useDiagramScreen;

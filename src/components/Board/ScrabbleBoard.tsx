@@ -8,14 +8,15 @@ import useScrabbleBoard from "./hooks/useScrabbleBoard";
 
 interface ScrabbleBoardProps {
   onFieldPress: (row: number, col: number) => void;
+  onTilePress: (letter: string, absX: number, absY: number) => void;
   containerRef: RefObject<View>;
 }
-
 const BOARD_COLOR = "#08763b";
 const GRID_COLOR = "#badce9c2";
 
 const ScrabbleBoard: React.FC<ScrabbleBoardProps> = ({
   onFieldPress,
+  onTilePress,
   containerRef,
 }) => {
   const {
@@ -29,8 +30,8 @@ const ScrabbleBoard: React.FC<ScrabbleBoardProps> = ({
     gridPath,
     revealedLocation,
     handleOnLayout,
-    handleTouch,
-  } = useScrabbleBoard(onFieldPress, containerRef);
+    handleTouchStart,
+  } = useScrabbleBoard(onFieldPress, onTilePress, containerRef);
 
   return (
     <View
@@ -46,7 +47,7 @@ const ScrabbleBoard: React.FC<ScrabbleBoardProps> = ({
       <Canvas
         ref={canvasRef}
         style={{ width: fieldSize * 15, height: fieldSize * 15 }}
-        onTouchEnd={handleTouch}
+        onTouchStart={handleTouchStart}
       >
         <Fill color={BOARD_COLOR} />
 
@@ -93,16 +94,18 @@ const ScrabbleBoard: React.FC<ScrabbleBoardProps> = ({
             color="#32f0d6bd"
           />
         ))}
-        {boardTiles.map((letter, i) => (
-          <BoardTile
-            key={i}
-            letter={letter.letter}
-            x={letter.x * fieldSize}
-            y={letter.y * fieldSize}
-            size={fieldSize}
-            newMove={letter.isNewMove}
-          />
-        ))}
+        {boardTiles
+          .filter((el) => !el.isMoved)
+          .map((letter, i) => (
+            <BoardTile
+              key={i}
+              letter={letter.letter}
+              x={letter.x * fieldSize}
+              y={letter.y * fieldSize}
+              size={fieldSize}
+              newMove={letter.isNewMove}
+            />
+          ))}
         {/* Siatka na wierzchu wszystkich pól */}
         <Path
           path={gridPath}

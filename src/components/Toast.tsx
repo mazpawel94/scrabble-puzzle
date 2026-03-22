@@ -1,25 +1,22 @@
+import { StyleSheet } from "react-native";
+import { Portal, Snackbar } from "react-native-paper";
+
 import {
   useGlobalActionsContext,
   useGlobalContext,
 } from "@/contexts/GlobalContext";
-import { StyleSheet } from "react-native";
-import { Portal, Snackbar } from "react-native-paper";
 
 const Toast = () => {
   const { snackbarMessage } = useGlobalContext();
   const { setSnackbarMessage } = useGlobalActionsContext();
-  console.log(
-    "%csrc\screens\DiagramScreen.tsx:101 snackbarMessage",
-    "color: #007acc;",
-    snackbarMessage,
-  );
 
   return (
     <Portal>
       <Snackbar
+        theme={{ colors: { primary: "white" } }}
         visible={!!snackbarMessage}
         onDismiss={() => setSnackbarMessage("")}
-        duration={3000}
+        duration={1000}
         action={{
           label: "OK",
           onPress: () => setSnackbarMessage(""),
@@ -40,14 +37,12 @@ export default Toast;
 const styles = StyleSheet.create({
   snackbar: {
     zIndex: 100,
-    bottom: 300,
+    bottom: 600,
   },
   success: {
     backgroundColor: "green", // zielony dla sukcesu
-    color: "white",
   },
   error: {
-    color: "white",
     backgroundColor: "red", // czerwony dla błędu
   },
 });

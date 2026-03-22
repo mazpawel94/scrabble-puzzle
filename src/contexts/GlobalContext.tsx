@@ -1,7 +1,4 @@
-import { useTasks } from "@/hooks/useTasks";
-import { IBoardLayoutParams, IBoardTile, LEVEL, Task } from "@/types";
-import { convertWordToLettersArray } from "@/utils/convertCoordinates";
-import {
+import React, {
   createContext,
   useCallback,
   useContext,
@@ -10,6 +7,11 @@ import {
   useState,
 } from "react";
 import { useWindowDimensions } from "react-native";
+
+import { RackLetter } from "@/components/Rack/Rack";
+import { useTasks } from "@/hooks/useTasks";
+import { IBoardLayoutParams, IBoardTile, LEVEL, Task } from "@/types";
+import { convertWordToLettersArray } from "@/utils/convertCoordinates";
 
 const GUTTER = 20;
 const BOARD_CHROME = 3 * 2 + 4 * 2;
@@ -20,25 +22,29 @@ interface IGlobalContext {
   currentLetters: string;
   currentLettersOnBoard: IBoardTile[];
   currentTask: Task | undefined;
-  index: number;
   fieldSize: number;
+  index: number;
+  rackLetters: RackLetter[];
   revealedLocation: { x: number; y: number }[];
   snackbarMessage: string;
   tasks: Task[];
+  textToDebug: string | null;
   userSolutionTiles: IBoardTile[];
 }
 
 interface IGlobalActionsContext {
   incrementIndex: () => void;
-  setSelectedLevel: React.Dispatch<React.SetStateAction<LEVEL>>;
   setBoardLayoutParams: React.Dispatch<
     React.SetStateAction<IBoardLayoutParams>
   >;
+  setRackLetters: React.Dispatch<React.SetStateAction<RackLetter[]>>;
   setRevealedLocation: React.Dispatch<
     React.SetStateAction<{ x: number; y: number }[]>
   >;
-  setUserSolutionTiles: React.Dispatch<React.SetStateAction<IBoardTile[]>>;
+  setSelectedLevel: React.Dispatch<React.SetStateAction<LEVEL>>;
   setSnackbarMessage: React.Dispatch<React.SetStateAction<string>>;
+  setTextToDebug: React.Dispatch<React.SetStateAction<string | null>>;
+  setUserSolutionTiles: React.Dispatch<React.SetStateAction<IBoardTile[]>>;
 }
 
 export const GlobalContext = createContext<IGlobalContext>({
@@ -48,19 +54,23 @@ export const GlobalContext = createContext<IGlobalContext>({
   currentTask: undefined,
   fieldSize: 0,
   index: 0,
+  rackLetters: [],
   revealedLocation: [],
   snackbarMessage: "",
   tasks: [],
+  textToDebug: null,
   userSolutionTiles: [],
 });
 
 export const GlobalActionsContext = createContext<IGlobalActionsContext>({
   incrementIndex: () => {},
-  setSelectedLevel: () => {},
   setBoardLayoutParams: () => {},
+  setRackLetters: () => {},
   setRevealedLocation: () => {},
-  setUserSolutionTiles: () => {},
+  setSelectedLevel: () => {},
   setSnackbarMessage: () => {},
+  setTextToDebug: () => {},
+  setUserSolutionTiles: () => {},
 });
 
 export const useGlobalContext = () => useContext(GlobalContext);
@@ -73,23 +83,18 @@ export const GlobalContextProvider = ({ children }: any) => {
   const [boardLayoutParams, setBoardLayoutParams] =
     useState<IBoardLayoutParams>({ x: 0, y: 0, width: 0, height: 0 });
   const [index, setIndex] = useState<number>(0);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [rackLetters, setRackLetters] = useState<RackLetter[]>([]);
+
   const [revealedLocation, setRevealedLocation] = useState<
     { x: number; y: number }[]
   >([]);
   const [selectedLevel, setSelectedLevel] = useState<LEVEL>("unknown");
-  const [userSolutionTiles, setUserSolutionTiles] = useState<IBoardTile[]>([]);
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [textToDebug, setTextToDebug] = useState<string | null>(null);
+  const [userSolutionTiles, setUserSolutionTiles] = useState<IBoardTile[]>([]);
+
   const { getTasksByLevel } = useTasks();
-
-  const incrementIndex = useCallback(() => {
-    setIndex((prev) => prev + 1);
-  }, []);
-
-  const fieldSize = useMemo(() => {
-    const availableWidth = width - screenPadding * 2 - GUTTER - BOARD_CHROME;
-    return Math.floor(availableWidth / 15);
-  }, [width]);
 
   const currentTask = useMemo(() => {
     return tasks[index] || undefined;
@@ -110,9 +115,17 @@ export const GlobalContextProvider = ({ children }: any) => {
     [currentTask],
   );
 
+  const fieldSize = useMemo(() => {
+    const availableWidth = width - screenPadding * 2 - GUTTER - BOARD_CHROME;
+    return Math.floor(availableWidth / 15);
+  }, [width]);
+
+  const incrementIndex = useCallback(() => {
+    setIndex((prev) => prev + 1);
+  }, []);
+
   useEffect(() => {
     const tasks = getTasksByLevel(selectedLevel);
-    console.log("nowy level ", selectedLevel);
     setTasks(tasks);
   }, [selectedLevel]);
 
@@ -121,25 +134,29 @@ export const GlobalContextProvider = ({ children }: any) => {
   }, [index]);
 
   const values = {
-    currentLetters,
-    currentTask,
-    currentLettersOnBoard,
     boardLayoutParams,
-    index,
+    currentLetters,
+    currentLettersOnBoard,
+    currentTask,
     fieldSize,
+    index,
+    rackLetters,
     revealedLocation,
     snackbarMessage,
     tasks,
+    textToDebug,
     userSolutionTiles,
   };
   const actions = useMemo(
     () => ({
       incrementIndex,
       setBoardLayoutParams,
+      setRackLetters,
       setRevealedLocation,
       setSelectedLevel,
-      setUserSolutionTiles,
       setSnackbarMessage,
+      setTextToDebug,
+      setUserSolutionTiles,
     }),
     [],
   );

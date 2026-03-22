@@ -21,6 +21,7 @@ export interface IBoardTile {
   y: number;
   letter: string;
   isNewMove?: boolean;
+  isMoved?: boolean;
 }
 
 export interface ApiResponse {

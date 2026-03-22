@@ -1,11 +1,12 @@
+import { matchFont, Skia, useCanvasRef } from "@shopify/react-native-skia";
+import { RefObject, useCallback, useMemo, useRef } from "react";
+import { GestureResponderEvent, Platform, View } from "react-native";
+
 import { BONUS_MAP, BonusType } from "@/constants/BoardFields";
 import {
   useGlobalActionsContext,
   useGlobalContext,
 } from "@/contexts/GlobalContext";
-import { matchFont, Skia, useCanvasRef } from "@shopify/react-native-skia";
-import { RefObject, useCallback, useMemo, useRef } from "react";
-import { GestureResponderEvent, Platform, View } from "react-native";
 
 const BOARD_COLOR = "#08763b";
 const GRID_COLOR = "#badce9c2";
@@ -37,6 +38,7 @@ const fontStyle = {
 
 const useScrabbleBoard = (
   onFieldPress: (row: number, col: number) => void,
+  onTilePress: (letter: string, absX: number, absY: number) => void,
   containerRef: RefObject<View>,
 ) => {
   const boardRef = useRef<View>(null!);
@@ -51,19 +53,6 @@ const useScrabbleBoard = (
   const { setBoardLayoutParams } = useGlobalActionsContext();
 
   const font = useMemo(() => matchFont(fontStyle), []);
-
-  const handleTouch = useCallback(
-    (e: GestureResponderEvent) => {
-      if (!onFieldPress) return;
-      const { locationX, locationY } = e.nativeEvent;
-      const col = Math.floor(locationX / fieldSize);
-      const row = Math.floor(locationY / fieldSize);
-      if (col >= 0 && col < 15 && row >= 0 && row < 15) {
-        onFieldPress(row, col);
-      }
-    },
-    [fieldSize, onFieldPress],
-  );
 
   const bonusCells = useMemo(() => {
     const result: Array<{ row: number; col: number; bonus: BonusType }> = [];
@@ -101,6 +90,22 @@ const useScrabbleBoard = (
     [currentLettersOnBoard, userSolutionTiles],
   );
 
+  const handleTouchStart = useCallback(
+    (e: GestureResponderEvent) => {
+      const { locationX, locationY, pageX, pageY } = e.nativeEvent;
+
+      const col = Math.floor(locationX / fieldSize);
+      const row = Math.floor(locationY / fieldSize);
+      if (col < 0 || col >= 15 || row < 0 || row >= 15) return;
+
+      // Sprawdź czy na tej pozycji jest płytka z bieżącego ruchu
+      const tile = userSolutionTiles.find((t) => t.x === col && t.y === row);
+      if (!tile) onFieldPress(row, col);
+      else onTilePress(tile.letter, pageX, pageY);
+    },
+    [fieldSize, userSolutionTiles, onTilePress],
+  );
+
   const handleOnLayout = useCallback(() => {
     boardRef.current?.measureLayout(
       containerRef.current!,
@@ -121,13 +126,13 @@ const useScrabbleBoard = (
     canvasRef,
     boardTiles,
     bonusCells,
+    diamondPaths,
     fieldSize,
     font,
     gridPath,
-    diamondPaths,
     revealedLocation,
     handleOnLayout,
-    handleTouch,
+    handleTouchStart,
   };
 };
 

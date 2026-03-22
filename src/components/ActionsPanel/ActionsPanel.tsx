@@ -1,13 +1,19 @@
 import React, { useState } from "react";
+
+import { BlankPickerModal } from "../BlankPickerModal";
 import NewDiagramForm from "../NewDiagramForm";
 import { ActionBar } from "./ActionBar";
 import useActionsPanel from "./hooks/useActionsPanel";
 
 export const ActionPanel = () => {
   const {
+    isActive,
+    isBlankModalOpen,
     isDisabledResetRack,
-    handleNextDiagram,
+    defineBlank,
+    giveUp,
     handleCheck,
+    handleNextDiagram,
     resetRack,
     showHint,
   } = useActionsPanel();
@@ -18,27 +24,36 @@ export const ActionPanel = () => {
       {formIsOpen ? (
         <NewDiagramForm closeForm={() => setFormIsOpen(false)} />
       ) : null}
+      {isBlankModalOpen ? <BlankPickerModal onConfirm={defineBlank} /> : null}
       <ActionBar
         actions={[
           {
             icon: "arrow-down",
             label: "Odłóż",
             onPress: resetRack,
-            disabled: isDisabledResetRack,
+            disabled: isDisabledResetRack || !isActive,
           },
           {
             icon: "lightbulb-outline",
             label: "Podpowiedź",
             onPress: showHint,
           },
-          { icon: "check", label: "Zatwierdź", onPress: handleCheck },
-
-          // { icon: "flag-outline", label: "Poddaję się", onPress: () => {} },
           {
-            icon: "skip-next",
-            label: "Następny",
-            onPress: handleNextDiagram,
+            icon: "check",
+            label: "Zatwierdź",
+            onPress: handleCheck,
+            disabled: !isActive,
           },
+
+          ...[
+            isActive
+              ? { icon: "flag-outline", label: "Poddaj się", onPress: giveUp }
+              : {
+                  icon: "skip-next",
+                  label: "Następny",
+                  onPress: handleNextDiagram,
+                },
+          ],
           {
             icon: "plus",
             label: "Zapisz",
