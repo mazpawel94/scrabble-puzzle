@@ -96,10 +96,11 @@ const useDiagramScreen = () => {
       const isBlank = letter === letter.toLowerCase();
       setRackLetters((prev) =>
         prev.map((el, index) =>
-          (el.letter === letter ||
+          ((el.letter === letter &&
+            prev.findIndex((l) => l.letter === letter && l.played) === index) ||
             (isBlank &&
               el.letter === "?" &&
-              prev.findIndex((l) => l.letter === "?") === index)) &&
+              prev.findIndex((l) => l.letter === "?" && l.played) === index)) &&
           el.played
             ? { ...el, played: false }
             : el,
