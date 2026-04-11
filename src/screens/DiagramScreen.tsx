@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ActionPanel } from "@/components/ActionsPanel/ActionsPanel";
 import ScrabbleBoard from "@/components/Board/ScrabbleBoard";
+import BoardHeader from "@/components/BoardHeader";
 import FloatingTile from "@/components/BoardTile/FloatingTile";
 import Rack from "@/components/Rack/Rack";
 import Toast from "@/components/Toast";
@@ -40,7 +41,7 @@ export default function DiagramScreen() {
       >
         Poziom: {level} ({index})
       </Text>
-
+      <BoardHeader />
       <View style={[styles.boardArea]}>
         {Platform.OS === "web" ? (
           <Text style={styles.webInfo}>Skia nie jest wspierana na web.</Text>
@@ -92,10 +93,7 @@ const styles = StyleSheet.create({
     color: "#023a0a",
     marginBottom: 4,
   },
-  subheader: {
-    color: "#6B6B85",
-    marginBottom: 24,
-  },
+
   webInfo: {
     color: "#6B6B85",
     fontSize: 14,
@@ -107,7 +105,6 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "flex-end",
     alignItems: "center",
-    marginTop: 100,
   },
   lettersPanel: {
     width: "100%",

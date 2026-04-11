@@ -27,7 +27,7 @@ export const convertBoardCoordinatesToNumbers = (coordinates: string) => {
 };
 
 const findLetterPoint = (tile: { letter: string; index: number }) => {
-  const basicValue = POINTS[tile.letter as LetterKey];
+  const basicValue = POINTS[tile.letter as LetterKey] || 0;
   if (letter2Indexes.includes(tile.index)) return basicValue * 2;
   if (letter3Indexes.includes(tile.index)) return basicValue * 3;
   return basicValue;
@@ -120,7 +120,7 @@ export const convertBoardStateToStringSolution = (
             index: tile.x + tile.y * 15,
           }) +
             tilesOnBoard.reduce(
-              (acc, curr) => acc + POINTS[curr.letter as LetterKey],
+              (acc, curr) => acc + (POINTS[curr.letter as LetterKey] || 0),
               0,
             )) *
           wordMultiplerByIndex[tile.x + tile.y * 15],
@@ -162,14 +162,14 @@ export const convertBoardStateToStringSolution = (
       0,
     ) +
       tilesOnBoard.reduce(
-        (acc, curr) => acc + POINTS[curr.letter as LetterKey],
+        (acc, curr) => acc + (POINTS[curr.letter as LetterKey] || 0),
         0,
       )) *
     newTiles.reduce(
       (acc, curr) => acc * wordMultiplerByIndex[curr.x + curr.y * 15],
       1,
     );
-
+    
   return {
     points:
       newTiles.length === 1 && !tilesOnBoard.length

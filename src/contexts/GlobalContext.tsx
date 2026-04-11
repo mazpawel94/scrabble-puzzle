@@ -9,11 +9,11 @@ import React, {
 import { useWindowDimensions } from "react-native";
 
 import { RackLetter } from "@/components/Rack/Rack";
+import useCheckMoveIsCorrect from "@/hooks/useCheckMoveIsCorrect";
 import { useTasks } from "@/hooks/useTasks";
 import { IBoardLayoutParams, IBoardTile, LEVEL, Task } from "@/types";
 import { convertWordToLettersArray } from "@/utils/convertCoordinates";
 
-const GUTTER = 20;
 const BOARD_CHROME = 3 * 2 + 4 * 2;
 const screenPadding = 12;
 
@@ -23,6 +23,7 @@ interface IGlobalContext {
   currentLettersOnBoard: IBoardTile[];
   currentTask: Task | undefined;
   fieldSize: number;
+  moveIsCorrect: boolean;
   index: number;
   rackLetters: RackLetter[];
   revealedLocation: { x: number; y: number }[];
@@ -54,6 +55,7 @@ export const GlobalContext = createContext<IGlobalContext>({
   currentTask: undefined,
   fieldSize: 0,
   index: 0,
+  moveIsCorrect: false,
   rackLetters: [],
   revealedLocation: [],
   snackbarMessage: "",
@@ -94,8 +96,6 @@ export const GlobalContextProvider = ({ children }: any) => {
   const [textToDebug, setTextToDebug] = useState<string | null>(null);
   const [userSolutionTiles, setUserSolutionTiles] = useState<IBoardTile[]>([]);
 
-  const { getTasksByLevel } = useTasks();
-
   const currentTask = useMemo(() => {
     return tasks[index] || undefined;
   }, [tasks, index]);
@@ -116,9 +116,15 @@ export const GlobalContextProvider = ({ children }: any) => {
   );
 
   const fieldSize = useMemo(() => {
-    const availableWidth = width - screenPadding * 2 - GUTTER - BOARD_CHROME;
+    const availableWidth = width - screenPadding * 2 - BOARD_CHROME;
     return Math.floor(availableWidth / 15);
   }, [width]);
+
+  const { getTasksByLevel } = useTasks();
+  const { moveIsCorrect } = useCheckMoveIsCorrect(
+    userSolutionTiles,
+    currentLettersOnBoard,
+  );
 
   const incrementIndex = useCallback(() => {
     setIndex((prev) => prev + 1);
@@ -140,6 +146,7 @@ export const GlobalContextProvider = ({ children }: any) => {
     currentTask,
     fieldSize,
     index,
+    moveIsCorrect,
     rackLetters,
     revealedLocation,
     snackbarMessage,

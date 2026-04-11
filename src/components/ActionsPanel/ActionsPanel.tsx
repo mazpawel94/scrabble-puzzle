@@ -10,6 +10,7 @@ export const ActionPanel = () => {
     isActive,
     isBlankModalOpen,
     isDisabledResetRack,
+    moveIsCorrect,
     defineBlank,
     giveUp,
     handleCheck,
@@ -42,7 +43,7 @@ export const ActionPanel = () => {
             icon: "check",
             label: "Zatwierdź",
             onPress: handleCheck,
-            disabled: !isActive,
+            disabled: !isActive || !moveIsCorrect,
           },
 
           ...[

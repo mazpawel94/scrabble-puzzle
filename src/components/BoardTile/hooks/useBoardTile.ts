@@ -10,7 +10,7 @@ function makeFont(size: number) {
   return matchFont({
     fontFamily: FONT_FAMILY,
     fontSize: size,
-    fontWeight: "bold",
+    fontWeight: "800",
   });
 }
 

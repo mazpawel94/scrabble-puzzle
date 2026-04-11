@@ -18,7 +18,7 @@ const BoardCoordinates: React.FC<BoardCoordinatesProps> = ({
   return (
     <View style={styles.wrapper}>
       {/* Górny rząd liter */}
-      <View style={[styles.topRow, { marginLeft: gutterSize }]}>
+      <View style={[styles.topRow, { marginLeft: 20 }]}>
         {LETTERS.map((letter) => (
           <View key={letter} style={{ width: fieldSize, alignItems: "center" }}>
             <Text style={styles.coordText}>{letter}</Text>

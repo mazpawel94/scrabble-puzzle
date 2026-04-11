@@ -17,8 +17,12 @@ const useActionsPanel = () => {
     setSnackbarMessage,
     setUserSolutionTiles,
   } = useGlobalActionsContext();
-  const { currentTask, currentLettersOnBoard, userSolutionTiles } =
-    useGlobalContext();
+  const {
+    currentTask,
+    currentLettersOnBoard,
+    moveIsCorrect,
+    userSolutionTiles,
+  } = useGlobalContext();
 
   const [isBlankModalOpen, setIsBlankModalOpen] = useState<boolean>(false);
   const [isActive, setIsActive] = useState<boolean>(true);
@@ -45,21 +49,21 @@ const useActionsPanel = () => {
   }, [currentTask]);
 
   const handleCheck = useCallback(() => {
-    if (!userSolutionTiles.length)
-      return setSnackbarMessage("Ułóż jakieś słowo");
-    const res = convertBoardStateToStringSolution(
+    if (!userSolutionTiles.length || !moveIsCorrect)
+      return setSnackbarMessage("Ułóż poprawne słowo");
+    const { coordinates, word } = convertBoardStateToStringSolution(
       userSolutionTiles,
       currentLettersOnBoard,
     );
 
     if (
-      currentTask?.solution.coordinates === res.coordinates &&
-      currentTask.solution.word === res.word
+      currentTask?.solution.coordinates === coordinates &&
+      currentTask.solution.word === word
     ) {
       setSnackbarMessage("Poprawne rozwiązanie 🎉");
       setIsActive(false);
     } else setSnackbarMessage("Spróbuj jeszcze raz");
-  }, [currentTask, userSolutionTiles]);
+  }, [currentTask, moveIsCorrect, userSolutionTiles]);
 
   const handleNextDiagram = useCallback(() => incrementIndex(), []);
 
@@ -89,10 +93,10 @@ const useActionsPanel = () => {
     handleNextDiagram,
     resetRack,
     showHint,
-
     isActive,
     isBlankModalOpen,
     isDisabledResetRack: userSolutionTiles.length === 0,
+    moveIsCorrect,
   };
 };
 

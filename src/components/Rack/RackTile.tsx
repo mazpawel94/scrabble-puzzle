@@ -46,7 +46,7 @@ const RackTile = ({ item, tileSize }: IRackTileProps) => {
           },
         ]}
       >
-        {displayLetter}
+        {displayLetter === "?" ? "" : displayLetter}
       </Text>
       {!isBlank && (
         <Text
@@ -60,7 +60,7 @@ const RackTile = ({ item, tileSize }: IRackTileProps) => {
             },
           ]}
         >
-          {POINTS[displayLetter as LetterKey] ?? 0}
+          {POINTS[displayLetter as LetterKey] || ""}
         </Text>
       )}
     </View>
