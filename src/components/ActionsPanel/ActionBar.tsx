@@ -1,12 +1,13 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { Text, useTheme } from "react-native-paper";
+import { Badge, Text, useTheme } from "react-native-paper";
 
 type Action = {
   icon: string;
   label: string;
   onPress: () => void;
   disabled?: boolean;
+  number?: number;
 };
 
 type Props = {
@@ -52,6 +53,18 @@ export const ActionBar = ({ actions }: Props) => {
           >
             {action.label}
           </Text>
+          {action.number ? (
+            <Badge
+              style={{
+                position: "absolute",
+                top: 0,
+                right: 5,
+                opacity: action.disabled ? 0.5 : 1,
+              }}
+            >
+              {action.number}
+            </Badge>
+          ) : null}
         </TouchableOpacity>
       ))}
     </View>

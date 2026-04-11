@@ -109,11 +109,6 @@ const useRack = (panelHeight: number) => {
     setUserSolutionTiles([]);
   }, [currentLetters]);
 
-  useEffect(() => {
-    if (userSolutionTiles.length === 0)
-      setRackLetters((prev) => prev.map((el) => ({ ...el, played: false })));
-  }, [userSolutionTiles.length]);
-
   return {
     lastAbsPos,
     rackRef,

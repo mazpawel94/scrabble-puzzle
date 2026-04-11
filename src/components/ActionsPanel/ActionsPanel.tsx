@@ -7,6 +7,7 @@ import useActionsPanel from "./hooks/useActionsPanel";
 
 export const ActionPanel = () => {
   const {
+    hintsCount,
     isActive,
     isBlankModalOpen,
     isDisabledResetRack,
@@ -38,6 +39,8 @@ export const ActionPanel = () => {
             icon: "lightbulb-outline",
             label: "Podpowiedź",
             onPress: showHint,
+            disabled: hintsCount >= 3 || !isActive,
+            number: hintsCount,
           },
           {
             icon: "check",

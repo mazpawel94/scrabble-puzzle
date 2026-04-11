@@ -22,6 +22,7 @@ export interface IBoardTile {
   letter: string;
   isNewMove?: boolean;
   isMoved?: boolean;
+  isLocked?: boolean;
 }
 
 export interface ApiResponse {

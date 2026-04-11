@@ -101,7 +101,7 @@ const useScrabbleBoard = (
       // Sprawdź czy na tej pozycji jest płytka z bieżącego ruchu
       const tile = userSolutionTiles.find((t) => t.x === col && t.y === row);
       if (!tile) onFieldPress(row, col);
-      else onTilePress(tile.letter, pageX, pageY);
+      else if (!tile.isLocked) onTilePress(tile.letter, pageX, pageY);
     },
     [fieldSize, userSolutionTiles, onTilePress],
   );
