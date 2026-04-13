@@ -129,7 +129,7 @@ const useActionsPanel = () => {
         setRackLetters((prev) =>
           prev.map((el, i) =>
             el.letter === letter &&
-            prev.findIndex((e) => e.letter === letter) === i
+            prev.findIndex((e) => e.letter === letter && !e.played) === i
               ? { ...el, played: true }
               : el,
           ),

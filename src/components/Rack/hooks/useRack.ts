@@ -59,7 +59,9 @@ const useRack = (panelHeight: number) => {
         setRackLetters((prev) => {
           const byId = Object.fromEntries(prev.map((l) => [l.id, l]));
           const played = prev.filter((l) => l.played);
-          return newOrder.map((id) => byId[id] || played.pop());
+          return newOrder
+            .map((id) => byId[id] || played?.pop())
+            .filter((el) => el);
         });
         return;
       }
@@ -67,7 +69,9 @@ const useRack = (panelHeight: number) => {
       setRackLetters((prev) => {
         const byId = Object.fromEntries(prev.map((l) => [l.id, l]));
         const played = prev.filter((l) => l.played);
-        const reordered = newOrder.map((id) => byId[id] || played.pop());
+        const reordered = newOrder
+          .map((id) => byId[id] || played?.pop())
+          .filter((el) => el);
         return reordered.map((el) =>
           el.id === id ? { ...el, played: true } : el,
         );
@@ -90,8 +94,8 @@ const useRack = (panelHeight: number) => {
   );
 
   const paddedData = useMemo<RackLetter[]>(() => {
-    const slots = rackLetters.map((l) =>
-      l.played ? { id: `__empty_${l.id}`, letter: "" } : l,
+    const slots = rackLetters.map((l, index) =>
+      l?.played ? { id: `__empty_${l?.id || index}`, letter: "" } : l,
     );
     for (let i = slots.length; i < 7; i++) {
       slots.push({ id: `__empty_extra_${i}`, letter: "" });
