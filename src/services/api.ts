@@ -1,4 +1,4 @@
-import { ApiResponse } from "../types";
+import { Task } from "@/types";
 
 export interface IDiagramParams {
   words: string;
@@ -13,7 +13,7 @@ export interface IDiagramParams {
 }
 const API_BASE_URL = "https://gcg-report-viewer.onrender.com";
 const api = {
-  getTasks: async (): Promise<ApiResponse> => {
+  getTasks: async (): Promise<Task[]> => {
     const response = await fetch(`${API_BASE_URL}/diagram`);
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);

@@ -9,8 +9,11 @@ import { PaperProvider } from "react-native-paper";
 import AppBackground from "@/components/AppBackground";
 import { Colors } from "@/constants/theme";
 import { GlobalContextProvider } from "@/contexts/GlobalContext";
+import { useDbMigrations } from "@/db";
 
 export default function RootLayout() {
+  const { success, error } = useDbMigrations();
+
   useEffect(() => {
     async function checkForUpdate() {
       try {
@@ -25,6 +28,9 @@ export default function RootLayout() {
     }
     checkForUpdate();
   }, []);
+
+  if (error) console.error("Migration error:", error);
+  if (!success) return null;
 
   return (
     <GestureHandlerRootView style={styles.root}>

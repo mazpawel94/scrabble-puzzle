@@ -105,15 +105,13 @@ export const GlobalContextProvider = ({ children }: any) => {
     [tasks, index],
   );
 
-  const currentLettersOnBoard: IBoardTile[] = useMemo(
-    () =>
-      currentTask
-        ? currentTask.words.flatMap((move) =>
-            convertWordToLettersArray(move.word, move.coordinates),
-          )
-        : [],
-    [currentTask],
-  );
+  const currentLettersOnBoard: IBoardTile[] = useMemo(() => {
+    return currentTask
+      ? currentTask.words.flatMap((move) =>
+          convertWordToLettersArray(move.word, move.coordinates),
+        )
+      : [];
+  }, [currentTask]);
 
   const fieldSize = useMemo(() => {
     const availableWidth = width - screenPadding * 2 - BOARD_CHROME;

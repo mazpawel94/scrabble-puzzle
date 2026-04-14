@@ -1,33 +1,32 @@
-import api from "@/services/api";
-import { ApiResponse, LEVEL, Task } from "@/types";
-import { dotts } from "@/utils/dotts";
+import { LEVEL, Task } from "@/types";
 import { examples } from "@/utils/examples";
-import { osps52 } from "@/utils/osps52";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useSync } from "./useSync";
 
 export const useTasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        setLoading(true);
-        const data: ApiResponse = await api.getTasks();
-        setTasks(data.tasks);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTasks();
-  }, []);
+
+  const { diagrams } = useSync();
+
   const getTasksByLevel = (level: LEVEL) => {
-    if (level === "unknown") return examples;
-    if (level === "hard") return dotts;
-    if (level === "medium") return osps52;
-    return tasks.filter((task) => task.level === level);
+    if (level === "unknown")
+      return examples.map((el) => ({
+        ...el,
+        id: "0",
+        createdAt: new Date().toISOString(),
+      })) as Task[];
+
+    if (level === "easy")
+      return diagrams.filter((el) => el.level && el.level <= 3) as Task[];
+    if (level === "medium")
+      return diagrams.filter(
+        (el) => el.level && el.level > 3 && el.level <= 5,
+      ) as Task[];
+    if (level === "hard")
+      return diagrams.filter((el) => el.level && el.level > 6) as Task[];
+    return [];
   };
-  return { tasks, loading, error, getTasksByLevel };
+  return { loading, error, getTasksByLevel };
 };

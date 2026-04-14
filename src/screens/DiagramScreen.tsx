@@ -8,7 +8,10 @@ import BoardHeader from "@/components/BoardHeader";
 import FloatingTile from "@/components/BoardTile/FloatingTile";
 import Rack from "@/components/Rack/Rack";
 import Toast from "@/components/Toast";
-import { useGlobalActionsContext } from "@/contexts/GlobalContext";
+import {
+  useGlobalActionsContext,
+  useGlobalContext,
+} from "@/contexts/GlobalContext";
 import useDiagramScreen from "./hooks/useDiagramScreen";
 
 export default function DiagramScreen() {
@@ -26,6 +29,7 @@ export default function DiagramScreen() {
 
   const containerRef = useRef<View>(null!);
 
+  const { tasks } = useGlobalContext();
   const { incrementIndex } = useGlobalActionsContext();
 
   return (
@@ -39,7 +43,7 @@ export default function DiagramScreen() {
         style={[styles.header, { height: height * 0.1 }]}
         onPress={incrementIndex}
       >
-        Poziom: {level} ({index})
+        Poziom: {level} ({index}/{tasks.length})
       </Text>
       <BoardHeader />
       <View style={[styles.boardArea]}>
