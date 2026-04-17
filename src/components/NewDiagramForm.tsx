@@ -1,15 +1,15 @@
 import { useGlobalContext } from "@/contexts/GlobalContext";
-import api from "@/services/api";
+import { postDiagram } from "@/services/api";
 import React, { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import {
-    Button,
-    Chip,
-    Divider,
-    Modal,
-    Portal,
-    SegmentedButtons,
-    Text,
+  Button,
+  Chip,
+  Divider,
+  Modal,
+  Portal,
+  SegmentedButtons,
+  Text,
 } from "react-native-paper";
 import { LevelPicker } from "./LevelPicker";
 
@@ -61,7 +61,7 @@ const NewDiagramForm = ({ closeForm }: { closeForm: () => void }) => {
         })),
       ),
     };
-    const res = await api.postDiagram(object);
+    const res = await postDiagram(object);
     if (res) closeForm();
   };
   return (

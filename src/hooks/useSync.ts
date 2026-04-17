@@ -1,4 +1,4 @@
-import api from "@/services/api";
+import { getTasks } from "@/services/api";
 import { Task } from "@/types";
 import NetInfo from "@react-native-community/netinfo";
 import { useEffect, useState } from "react";
@@ -29,12 +29,9 @@ export function useSync() {
       try {
         setSyncing(true);
         const lastSyncedAt = await getLastSyncedAt();
-        const res: Task[] = await api.getTasks();
-        //   ? `/diagrams?updated_after=${encodeURIComponent(lastSyncedAt)}`
-        //   : "/diagrams";
-
+        const res: Task[] = await getTasks(lastSyncedAt);
         if (!res) throw new Error(`HTTP error`);
-        const fresh = res.map((el) => ({
+        const newTasks = res.map((el) => ({
           id: el.id,
           isPublic: "true",
           createdAt: el.createdAt,
@@ -47,8 +44,9 @@ export function useSync() {
             typeof el.words === "string" ? el.words : JSON.stringify(el.words),
           level: el.level || 0,
         }));
-        if (fresh.length > 0) {
-          await upsertDiagrams(fresh);
+
+        if (newTasks.length > 0) {
+          await upsertDiagrams(newTasks);
           const actualData = await getAllDiagrams();
           setDiagrams(
             actualData.map((el) => ({

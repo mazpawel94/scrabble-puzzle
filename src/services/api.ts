@@ -1,3 +1,6 @@
+import axios from "axios";
+
+import { storage } from "@/auth/storage";
 import { Task } from "@/types";
 
 export interface IDiagramParams {
@@ -11,26 +14,46 @@ export interface IDiagramParams {
   }[];
   level: number;
 }
-const API_BASE_URL = "https://gcg-report-viewer.onrender.com";
-const api = {
-  getTasks: async (): Promise<Task[]> => {
-    const response = await fetch(`${API_BASE_URL}/diagram`);
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
 
-    const data = await response.json();
-    return data;
-  },
-  postDiagram: async (diagram: IDiagramParams): Promise<string> => {
-    const response = await fetch(`${API_BASE_URL}/diagram`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(diagram),
-    });
-    return response.text();
-  },
+export interface IUserDiagramParams {
+  userId: string;
+  diagramId: string;
+  attempts: number;
+  usedHints: number;
+  correctlySolved: boolean;
+}
+
+const API_BASE_URL = "https://gcg-report-viewer.onrender.com";
+export const api = axios.create({ baseURL: API_BASE_URL });
+
+api.interceptors.request.use(async (config) => {
+  const jwt = await storage.getJwt();
+  if (jwt) config.headers.Authorization = `Bearer ${jwt}`;
+  return config;
+});
+
+export const getTasks = async (
+  lastSyncedAt: string | null,
+): Promise<Task[]> => {
+  const { data } = await api.get(
+    `/diagram${lastSyncedAt ? `?created_after=${encodeURIComponent(lastSyncedAt)}` : ""}`,
+  );
+  if (!data) {
+    throw new Error(`API error`);
+  }
+  return data;
 };
+
+export const postDiagram = async (diagram: IDiagramParams): Promise<string> => {
+  const { data } = await api.post("/diagram", diagram);
+  return data;
+};
+
+export const postTaskResult = async (
+  result: IUserDiagramParams,
+): Promise<string> => {
+  const { data } = await api.post("/user-diagram", result);
+  return data;
+};
+
 export default api;

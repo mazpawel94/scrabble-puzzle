@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 
+import { useAuth } from "@/auth/AuthContext";
 import {
   useGlobalActionsContext,
   useGlobalContext,
 } from "@/contexts/GlobalContext";
+import { postTaskResult } from "@/services/api";
 import {
   convertBoardStateToStringSolution,
   convertWordToLettersArray,
@@ -12,16 +14,22 @@ import {
 const useActionsPanel = () => {
   const {
     incrementIndex,
+    setAttemptsCount,
     setRackLetters,
     setRevealedLocation,
     setSnackbarMessage,
     setUserSolutionTiles,
   } = useGlobalActionsContext();
+
+  const { userId } = useAuth();
+
   const {
+    attemptsCount,
     currentTask,
     currentLettersOnBoard,
     moveIsCorrect,
     userSolutionTiles,
+    selectedLevel,
   } = useGlobalContext();
 
   const [isBlankModalOpen, setIsBlankModalOpen] = useState<boolean>(false);
@@ -37,8 +45,22 @@ const useActionsPanel = () => {
     setIsBlankModalOpen(false);
   }, []);
 
+  const handleTaskCompletion = useCallback(
+    (isCorrect: boolean) => {
+      if (selectedLevel === "unknown") return;
+      postTaskResult({
+        userId: userId!,
+        diagramId: currentTask!.id,
+        attempts: attemptsCount,
+        usedHints: hintsCount,
+        correctlySolved: isCorrect,
+      });
+    },
+    [selectedLevel, currentTask, userId, attemptsCount, hintsCount],
+  );
   const giveUp = useCallback(() => {
     setIsActive(false);
+    handleTaskCompletion(false);
     const solutionTiles = convertWordToLettersArray(
       currentTask!.solution.word,
       currentTask!.solution.coordinates,
@@ -47,7 +69,7 @@ const useActionsPanel = () => {
       solutionTiles.map((el) => ({ ...el, isNewMove: true })),
     );
     setRackLetters((prev) => prev.map((el) => ({ ...el, played: true })));
-  }, [currentTask]);
+  }, [currentTask, handleTaskCompletion]);
 
   const handleCheck = useCallback(() => {
     if (!userSolutionTiles.length || !moveIsCorrect)
@@ -63,8 +85,13 @@ const useActionsPanel = () => {
     ) {
       setSnackbarMessage("Poprawne rozwiązanie 🎉");
       setIsActive(false);
-    } else setSnackbarMessage("Spróbuj jeszcze raz");
-  }, [currentTask, moveIsCorrect, userSolutionTiles]);
+      handleTaskCompletion(true);
+    } else {
+      setAttemptsCount((prev) => prev + 1);
+      if (attemptsCount < 5) setSnackbarMessage("Spróbuj jeszcze raz");
+      else giveUp();
+    }
+  }, [currentTask, giveUp, moveIsCorrect, userSolutionTiles]);
 
   const handleNextDiagram = useCallback(() => incrementIndex(), []);
 
@@ -148,6 +175,7 @@ const useActionsPanel = () => {
   useEffect(() => {
     setIsActive(true);
     setHintsCount(0);
+    setAttemptsCount(0);
   }, [currentTask]);
 
   return {

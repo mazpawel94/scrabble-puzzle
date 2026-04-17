@@ -18,11 +18,13 @@ const BOARD_CHROME = 3 * 2 + 4 * 2;
 const screenPadding = 12;
 
 interface IGlobalContext {
+  attemptsCount: number;
   boardLayoutParams: IBoardLayoutParams;
   currentLetters: string;
   currentLettersOnBoard: IBoardTile[];
   currentTask: Task | undefined;
   fieldSize: number;
+  selectedLevel: LEVEL;
   moveIsCorrect: boolean;
   index: number;
   rackLetters: RackLetter[];
@@ -35,6 +37,7 @@ interface IGlobalContext {
 
 interface IGlobalActionsContext {
   incrementIndex: () => void;
+  setAttemptsCount: React.Dispatch<React.SetStateAction<number>>;
   setBoardLayoutParams: React.Dispatch<
     React.SetStateAction<IBoardLayoutParams>
   >;
@@ -49,6 +52,7 @@ interface IGlobalActionsContext {
 }
 
 export const GlobalContext = createContext<IGlobalContext>({
+  attemptsCount: 0,
   boardLayoutParams: { x: 0, y: 0, width: 0, height: 0 },
   currentLetters: "",
   currentLettersOnBoard: [],
@@ -59,6 +63,7 @@ export const GlobalContext = createContext<IGlobalContext>({
   rackLetters: [],
   revealedLocation: [],
   snackbarMessage: "",
+  selectedLevel: "unknown",
   tasks: [],
   textToDebug: null,
   userSolutionTiles: [],
@@ -66,6 +71,7 @@ export const GlobalContext = createContext<IGlobalContext>({
 
 export const GlobalActionsContext = createContext<IGlobalActionsContext>({
   incrementIndex: () => {},
+  setAttemptsCount: () => {},
   setBoardLayoutParams: () => {},
   setRackLetters: () => {},
   setRevealedLocation: () => {},
@@ -85,6 +91,8 @@ export const GlobalContextProvider = ({ children }: any) => {
   const [boardLayoutParams, setBoardLayoutParams] =
     useState<IBoardLayoutParams>({ x: 0, y: 0, width: 0, height: 0 });
   const [index, setIndex] = useState<number>(0);
+  const [attemptsCount, setAttemptsCount] = useState<number>(0);
+
   const [rackLetters, setRackLetters] = useState<RackLetter[]>([]);
 
   const [revealedLocation, setRevealedLocation] = useState<
@@ -138,6 +146,7 @@ export const GlobalContextProvider = ({ children }: any) => {
   }, [index]);
 
   const values = {
+    attemptsCount,
     boardLayoutParams,
     currentLetters,
     currentLettersOnBoard,
@@ -147,6 +156,7 @@ export const GlobalContextProvider = ({ children }: any) => {
     moveIsCorrect,
     rackLetters,
     revealedLocation,
+    selectedLevel,
     snackbarMessage,
     tasks,
     textToDebug,
@@ -155,6 +165,7 @@ export const GlobalContextProvider = ({ children }: any) => {
   const actions = useMemo(
     () => ({
       incrementIndex,
+      setAttemptsCount,
       setBoardLayoutParams,
       setRackLetters,
       setRevealedLocation,

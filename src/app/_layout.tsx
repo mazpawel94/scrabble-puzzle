@@ -6,11 +6,30 @@ import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
 
+import { AuthProvider, useAuth } from "@/auth/AuthContext";
 import AppBackground from "@/components/AppBackground";
 import { Colors } from "@/constants/theme";
 import { GlobalContextProvider } from "@/contexts/GlobalContext";
 import { useDbMigrations } from "@/db";
 
+const AppContent = () => {
+  const { status } = useAuth();
+  if (status === "loading") return null;
+
+  return (
+    <>
+      <AppBackground />
+      <StatusBar style="light" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: "transparent" },
+          animation: "fade_from_bottom",
+        }}
+      />
+    </>
+  );
+};
 export default function RootLayout() {
   const { success, error } = useDbMigrations();
 
@@ -35,17 +54,11 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.root}>
       <PaperProvider>
-        <GlobalContextProvider>
-          <AppBackground />
-          <StatusBar style="light" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: "transparent" },
-              animation: "fade_from_bottom",
-            }}
-          />
-        </GlobalContextProvider>
+        <AuthProvider>
+          <GlobalContextProvider>
+            <AppContent />
+          </GlobalContextProvider>
+        </AuthProvider>
       </PaperProvider>
     </GestureHandlerRootView>
   );
