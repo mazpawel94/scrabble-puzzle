@@ -14,3 +14,11 @@ export const diagrams = sqliteTable("diagrams", {
   solvedAt: text("solved_at"),
   createdAt: text("created_at").notNull(),
 });
+
+export const outbox = sqliteTable("outbox", {
+  id: text("id").primaryKey(),
+  endpoint: text("endpoint").notNull(),
+  method: text("method").notNull(),
+  body: text("body").notNull(),
+  createdAt: text("created_at").notNull(),
+});

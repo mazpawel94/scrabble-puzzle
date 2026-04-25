@@ -8,6 +8,13 @@
       "when": 1776099707943,
       "tag": "0000_elite_captain_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1700000000001,
+      "tag": "0001_outbox",
+      "breakpoints": true
     }
   ]
 }

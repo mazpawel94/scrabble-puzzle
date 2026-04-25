@@ -1,9 +1,10 @@
-export type LEVEL = "easy" | "medium" | "hard" | "unknown";
+export type LEVEL = "easy" | "medium" | "hard" | "unknown" | "resume";
 export interface Task {
   id: string;
   level?: number;
   title?: string;
   description?: string;
+  isPublic?: boolean | string;
   words: {
     coordinates: string;
     word: string;
@@ -14,6 +15,7 @@ export interface Task {
     coordinates: string;
     evaluate: number;
   };
+  tags?: string[];
   createdAt: string;
 }
 export interface IBoardTile {

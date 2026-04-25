@@ -70,9 +70,7 @@ const LetterCell = React.memo(
           width: cellSize,
           height: cellSize,
           borderRadius: theme.roundness,
-          backgroundColor: active
-            ? theme.colors.primary
-            : theme.colors.surfaceVariant,
+          backgroundColor: active ? "#f8e8c7" : theme.colors.surfaceVariant,
           overflow: "hidden",
         }}
       >
@@ -91,9 +89,7 @@ const LetterCell = React.memo(
             style={{
               fontSize: cellSize * 0.4,
               fontWeight: active ? "700" : "400",
-              color: active
-                ? theme.colors.onPrimary
-                : theme.colors.onSurfaceVariant,
+              color: active ? "#023a0a" : theme.colors.onSurfaceVariant,
             }}
           >
             {letter}
@@ -191,5 +187,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 20,
+    backgroundColor: "#f8e8c7",
+    color: "#023a0a",
   },
 });

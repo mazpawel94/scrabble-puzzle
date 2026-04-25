@@ -5,6 +5,8 @@ import {
   useGlobalActionsContext,
   useGlobalContext,
 } from "@/contexts/GlobalContext";
+import { deleteDiagram } from "@/db";
+import { useOutbox } from "@/hooks/useOutbox";
 import { postTaskResult } from "@/services/api";
 import {
   convertBoardStateToStringSolution,
@@ -13,12 +15,13 @@ import {
 
 const useActionsPanel = () => {
   const {
-    incrementIndex,
+    nextDiagram,
     setAttemptsCount,
     setRackLetters,
     setRevealedLocation,
     setSnackbarMessage,
     setUserSolutionTiles,
+    setUserRank,
   } = useGlobalActionsContext();
 
   const { userId } = useAuth();
@@ -30,11 +33,16 @@ const useActionsPanel = () => {
     moveIsCorrect,
     userSolutionTiles,
     selectedLevel,
+    userRank,
   } = useGlobalContext();
+
+  const { sendOrEnqueue } = useOutbox();
 
   const [isBlankModalOpen, setIsBlankModalOpen] = useState<boolean>(false);
   const [isActive, setIsActive] = useState<boolean>(true);
   const [hintsCount, setHintsCount] = useState<number>(0);
+
+  const [userDiagramRank, setUserDiagramRank] = useState<number>(1);
 
   const defineBlank = useCallback((letter: string) => {
     setUserSolutionTiles((prev) =>
@@ -48,18 +56,23 @@ const useActionsPanel = () => {
   const handleTaskCompletion = useCallback(
     (isCorrect: boolean) => {
       if (selectedLevel === "unknown") return;
-      postTaskResult({
-        userId: userId!,
-        diagramId: currentTask!.id,
-        attempts: attemptsCount,
-        usedHints: hintsCount,
-        correctlySolved: isCorrect,
-      });
+      postTaskResult(
+        {
+          userId: userId!,
+          diagramId: currentTask!.id,
+          attempts: attemptsCount,
+          usedHints: hintsCount,
+          correctlySolved: isCorrect,
+        },
+        sendOrEnqueue,
+      );
     },
     [selectedLevel, currentTask, userId, attemptsCount, hintsCount],
   );
   const giveUp = useCallback(() => {
     setIsActive(false);
+    setUserDiagramRank(-1);
+    setUserRank((prev) => prev! - 1);
     handleTaskCompletion(false);
     const solutionTiles = convertWordToLettersArray(
       currentTask!.solution.word,
@@ -83,17 +96,31 @@ const useActionsPanel = () => {
       currentTask?.solution.coordinates === coordinates &&
       currentTask.solution.word === word
     ) {
-      setSnackbarMessage("Poprawne rozwiązanie 🎉");
+      setSnackbarMessage(`Poprawne rozwiązanie 🎉`);
+      setUserRank((prev) => prev! + Math.max(-1, userDiagramRank));
       setIsActive(false);
       handleTaskCompletion(true);
     } else {
+      setUserDiagramRank((prev) => prev - 0.2);
       setAttemptsCount((prev) => prev + 1);
-      if (attemptsCount < 5) setSnackbarMessage("Spróbuj jeszcze raz");
+      if (attemptsCount < 5) setSnackbarMessage(`Spróbuj jeszcze raz`);
       else giveUp();
     }
-  }, [currentTask, giveUp, moveIsCorrect, userSolutionTiles]);
+  }, [
+    currentTask,
+    giveUp,
+    moveIsCorrect,
+    userSolutionTiles,
+    userDiagramRank,
+    attemptsCount,
+  ]);
 
-  const handleNextDiagram = useCallback(() => incrementIndex(), []);
+  const handleNextDiagram = useCallback(() => {
+    deleteDiagram(currentTask!.id);
+    if (userDiagramRank === 1) nextDiagram((currentTask!.level || -1) + 1);
+    else if (userDiagramRank <= -1) nextDiagram((currentTask!.level || 1) - 1);
+    else nextDiagram(Math.floor(userRank!));
+  }, [userDiagramRank, userRank, currentTask, nextDiagram]);
 
   const resetRack = useCallback(() => {
     setUserSolutionTiles((prev) => prev.filter((el) => el.isLocked));
@@ -121,9 +148,11 @@ const useActionsPanel = () => {
     switch (hintsCount) {
       case 0:
         setRevealedLocation(solutionTiles.map((el) => ({ x: el.x, y: el.y })));
+        setUserDiagramRank((prev) => prev - 1.2);
         break;
       case 1: {
         resetRack();
+        setUserDiagramRank((prev) => prev - 0.5);
         const firstTile = solutionTiles[0];
         setUserSolutionTiles([
           { ...firstTile, isNewMove: true, isLocked: true },
@@ -145,6 +174,8 @@ const useActionsPanel = () => {
       case 2: {
         resetRack();
         const lastTile = solutionTiles[solutionTiles.length - 1];
+        setUserDiagramRank((prev) => prev - 0.3);
+
         setUserSolutionTiles([
           { ...solutionTiles[0], isNewMove: true, isLocked: true },
           { ...lastTile, isNewMove: true, isLocked: true },
@@ -176,6 +207,7 @@ const useActionsPanel = () => {
     setIsActive(true);
     setHintsCount(0);
     setAttemptsCount(0);
+    setUserDiagramRank(1);
   }, [currentTask]);
 
   return {

@@ -1,6 +1,5 @@
 import React, {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -10,12 +9,22 @@ import { useWindowDimensions } from "react-native";
 
 import { RackLetter } from "@/components/Rack/Rack";
 import useCheckMoveIsCorrect from "@/hooks/useCheckMoveIsCorrect";
-import { useTasks } from "@/hooks/useTasks";
+import useHandleTasks from "@/hooks/useHandleTasks";
+import {
+  getUserRank,
+  setUserRank as setUserRankStorage,
+} from "@/storage/syncMeta";
 import { IBoardLayoutParams, IBoardTile, LEVEL, Task } from "@/types";
 import { convertWordToLettersArray } from "@/utils/convertCoordinates";
 
 const BOARD_CHROME = 3 * 2 + 4 * 2;
 const screenPadding = 12;
+
+const levelMap: Record<string, number> = {
+  easy: 1,
+  medium: 4,
+  hard: 7,
+};
 
 interface IGlobalContext {
   attemptsCount: number;
@@ -26,17 +35,16 @@ interface IGlobalContext {
   fieldSize: number;
   selectedLevel: LEVEL;
   moveIsCorrect: boolean;
-  index: number;
+  userRank: number | null;
   rackLetters: RackLetter[];
   revealedLocation: { x: number; y: number }[];
   snackbarMessage: string;
-  tasks: Task[];
   textToDebug: string | null;
   userSolutionTiles: IBoardTile[];
 }
 
 interface IGlobalActionsContext {
-  incrementIndex: () => void;
+  nextDiagram: (level?: number) => void;
   setAttemptsCount: React.Dispatch<React.SetStateAction<number>>;
   setBoardLayoutParams: React.Dispatch<
     React.SetStateAction<IBoardLayoutParams>
@@ -48,6 +56,7 @@ interface IGlobalActionsContext {
   setSelectedLevel: React.Dispatch<React.SetStateAction<LEVEL>>;
   setSnackbarMessage: React.Dispatch<React.SetStateAction<string>>;
   setTextToDebug: React.Dispatch<React.SetStateAction<string | null>>;
+  setUserRank: React.Dispatch<React.SetStateAction<number | null>>;
   setUserSolutionTiles: React.Dispatch<React.SetStateAction<IBoardTile[]>>;
 }
 
@@ -58,19 +67,18 @@ export const GlobalContext = createContext<IGlobalContext>({
   currentLettersOnBoard: [],
   currentTask: undefined,
   fieldSize: 0,
-  index: 0,
+  userRank: null,
   moveIsCorrect: false,
   rackLetters: [],
   revealedLocation: [],
   snackbarMessage: "",
   selectedLevel: "unknown",
-  tasks: [],
   textToDebug: null,
   userSolutionTiles: [],
 });
 
 export const GlobalActionsContext = createContext<IGlobalActionsContext>({
-  incrementIndex: () => {},
+  nextDiagram: () => {},
   setAttemptsCount: () => {},
   setBoardLayoutParams: () => {},
   setRackLetters: () => {},
@@ -79,6 +87,7 @@ export const GlobalActionsContext = createContext<IGlobalActionsContext>({
   setSnackbarMessage: () => {},
   setTextToDebug: () => {},
   setUserSolutionTiles: () => {},
+  setUserRank: () => {},
 });
 
 export const useGlobalContext = () => useContext(GlobalContext);
@@ -90,7 +99,6 @@ export const GlobalContextProvider = ({ children }: any) => {
 
   const [boardLayoutParams, setBoardLayoutParams] =
     useState<IBoardLayoutParams>({ x: 0, y: 0, width: 0, height: 0 });
-  const [index, setIndex] = useState<number>(0);
   const [attemptsCount, setAttemptsCount] = useState<number>(0);
 
   const [rackLetters, setRackLetters] = useState<RackLetter[]>([]);
@@ -98,19 +106,18 @@ export const GlobalContextProvider = ({ children }: any) => {
   const [revealedLocation, setRevealedLocation] = useState<
     { x: number; y: number }[]
   >([]);
-  const [selectedLevel, setSelectedLevel] = useState<LEVEL>("unknown");
+  const [selectedLevel, setSelectedLevel] = useState<LEVEL>("resume");
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
-  const [tasks, setTasks] = useState<Task[]>([]);
   const [textToDebug, setTextToDebug] = useState<string | null>(null);
   const [userSolutionTiles, setUserSolutionTiles] = useState<IBoardTile[]>([]);
 
-  const currentTask = useMemo(() => {
-    return tasks[index] || undefined;
-  }, [tasks, index]);
+  const [userRank, setUserRank] = useState<number | null>(null);
+
+  const { queueReady, currentTask, nextDiagram } = useHandleTasks(userRank);
 
   const currentLetters = useMemo(
-    () => tasks[index]?.letters || "",
-    [tasks, index],
+    () => currentTask?.letters || "",
+    [currentTask],
   );
 
   const currentLettersOnBoard: IBoardTile[] = useMemo(() => {
@@ -126,24 +133,42 @@ export const GlobalContextProvider = ({ children }: any) => {
     return Math.floor(availableWidth / 15);
   }, [width]);
 
-  const { getTasksByLevel } = useTasks();
   const { moveIsCorrect } = useCheckMoveIsCorrect(
     userSolutionTiles,
     currentLettersOnBoard,
   );
 
-  const incrementIndex = useCallback(() => {
-    setIndex((prev) => prev + 1);
-  }, []);
-
+  //na bieżąco aktualizujemy localstorage, żeby rank był tam zawsze aktualny i można było wznowić grę po zamknięciu aplikacji
   useEffect(() => {
-    const tasks = getTasksByLevel(selectedLevel);
-    setTasks(tasks);
-  }, [selectedLevel]);
+    if (userRank !== null) setUserRankStorage(userRank);
+  }, [userRank]);
 
   useEffect(() => {
     setRevealedLocation([]);
-  }, [index]);
+  }, [currentTask]);
+
+  useEffect(() => {
+    if (!queueReady || !selectedLevel) return;
+    const startGame = async () => {
+      if (selectedLevel === "resume") {
+        try {
+          const savedRank = await getUserRank();
+          nextDiagram(savedRank!);
+          console.log({ savedRank });
+          setUserRank(savedRank!);
+        } catch (error) {
+          console.error("Błąd pobierania rankingu z resume:", error);
+          nextDiagram(1);
+          setUserRank(1);
+        }
+        return;
+      }
+      const startLevel = levelMap[selectedLevel] ?? 0;
+      nextDiagram(startLevel);
+      setUserRank(startLevel);
+    };
+    startGame();
+  }, [selectedLevel, queueReady]);
 
   const values = {
     attemptsCount,
@@ -152,19 +177,18 @@ export const GlobalContextProvider = ({ children }: any) => {
     currentLettersOnBoard,
     currentTask,
     fieldSize,
-    index,
     moveIsCorrect,
     rackLetters,
     revealedLocation,
     selectedLevel,
     snackbarMessage,
-    tasks,
     textToDebug,
+    userRank,
     userSolutionTiles,
   };
   const actions = useMemo(
     () => ({
-      incrementIndex,
+      nextDiagram,
       setAttemptsCount,
       setBoardLayoutParams,
       setRackLetters,
@@ -172,9 +196,10 @@ export const GlobalContextProvider = ({ children }: any) => {
       setSelectedLevel,
       setSnackbarMessage,
       setTextToDebug,
+      setUserRank,
       setUserSolutionTiles,
     }),
-    [],
+    [nextDiagram],
   );
 
   return (

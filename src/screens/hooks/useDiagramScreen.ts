@@ -16,12 +16,12 @@ interface FloatingTileState {
 const useDiagramScreen = () => {
   const { level } = useLocalSearchParams<{ level: string }>();
   const { height } = useWindowDimensions();
+  const [isLayoutReady, setIsLayoutReady] = useState(false);
 
   const {
     boardLayoutParams,
     currentLettersOnBoard,
     fieldSize,
-    index,
     userSolutionTiles,
   } = useGlobalContext();
 
@@ -51,6 +51,7 @@ const useDiagramScreen = () => {
     containerRef.current?.measure((_x, _y, _w, _h, pageX) => {
       containerOffsetX.current = pageX;
     });
+    setIsLayoutReady(true);
   }, []);
 
   const handleTilePress = (letter: string, absX: number, absY: number) => {
@@ -130,7 +131,7 @@ const useDiagramScreen = () => {
   return {
     floatingTile,
     height,
-    index,
+    isLayoutReady,
     level,
     panelHeight,
     handleContainerLayout,

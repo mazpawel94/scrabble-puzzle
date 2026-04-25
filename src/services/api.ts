@@ -41,6 +41,9 @@ export const getTasks = async (
   if (!data) {
     throw new Error(`API error`);
   }
+  console.log(
+    `Loaded new diagrams! ${data.length}. Last synced at: ${lastSyncedAt}`,
+  );
   return data;
 };
 
@@ -51,8 +54,14 @@ export const postDiagram = async (diagram: IDiagramParams): Promise<string> => {
 
 export const postTaskResult = async (
   result: IUserDiagramParams,
+  functionWrapper: (
+    endpoint: string,
+    method: string,
+    body: object,
+  ) => Promise<any>,
 ): Promise<string> => {
-  const { data } = await api.post("/user-diagram", result);
+  const data = await functionWrapper("/user-diagram", "POST", result);
+  // const { data } = await api.post("/user-diagram", result);
   return data;
 };
 

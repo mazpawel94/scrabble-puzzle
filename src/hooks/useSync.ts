@@ -4,8 +4,11 @@ import NetInfo from "@react-native-community/netinfo";
 import { useEffect, useState } from "react";
 import { getAllDiagrams, upsertDiagrams } from "../db";
 import { getLastSyncedAt, setLastSyncedAt } from "../storage/syncMeta";
+import { useOutbox } from "./useOutbox";
 
 export function useSync() {
+  const { flush } = useOutbox();
+
   const [diagrams, setDiagrams] = useState<Task[]>([]);
   const [syncing, setSyncing] = useState(false);
 
@@ -25,25 +28,29 @@ export function useSync() {
       // 2. Sync w tle jeśli jest internet
       const net = await NetInfo.fetch();
       if (!net.isConnected) return;
-
+      await flush();
       try {
         setSyncing(true);
         const lastSyncedAt = await getLastSyncedAt();
         const res: Task[] = await getTasks(lastSyncedAt);
         if (!res) throw new Error(`HTTP error`);
-        const newTasks = res.map((el) => ({
-          id: el.id,
-          isPublic: "true",
-          createdAt: el.createdAt,
-          solution:
-            typeof el.solution === "string"
-              ? el.solution
-              : JSON.stringify(el.solution),
-          letters: el.letters,
-          words:
-            typeof el.words === "string" ? el.words : JSON.stringify(el.words),
-          level: el.level || 0,
-        }));
+        const newTasks = res
+          .filter((el) => !(el.tags || []).includes("OSPS52"))
+          .map((el) => ({
+            id: el.id,
+            isPublic: `${el.isPublic || true}`,
+            createdAt: el.createdAt,
+            solution:
+              typeof el.solution === "string"
+                ? el.solution
+                : JSON.stringify(el.solution),
+            letters: el.letters,
+            words:
+              typeof el.words === "string"
+                ? el.words
+                : JSON.stringify(el.words),
+            level: el.level || 0,
+          }));
 
         if (newTasks.length > 0) {
           await upsertDiagrams(newTasks);

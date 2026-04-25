@@ -1,4 +1,3 @@
-import { useGlobalActionsContext } from "@/contexts/GlobalContext";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, ViewStyle } from "react-native";
 interface LevelButtonProps {
@@ -19,7 +18,6 @@ const levelLabels = {
   unknown: "Nieznany",
 };
 const LevelButton: React.FC<LevelButtonProps> = ({ level, onPress, style }) => {
-  const { setSelectedLevel } = useGlobalActionsContext();
   return (
     <TouchableOpacity
       style={[styles.button, { backgroundColor: levelColors[level] }, style]}

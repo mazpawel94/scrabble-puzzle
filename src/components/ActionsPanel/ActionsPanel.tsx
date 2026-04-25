@@ -58,11 +58,11 @@ export const ActionPanel = () => {
                   onPress: handleNextDiagram,
                 },
           ],
-          {
-            icon: "plus",
-            label: "Zapisz",
-            onPress: () => setFormIsOpen(true),
-          },
+          // {
+          //   icon: "plus",
+          //   label: "Zapisz",
+          //   onPress: () => setFormIsOpen(true),
+          // },
         ]}
       />
     </>

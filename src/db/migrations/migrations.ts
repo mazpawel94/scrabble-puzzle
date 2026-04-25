@@ -10,6 +10,13 @@ export const migrations = {
         tag: "0000_elite_captain_marvel",
         breakpoints: true,
       },
+      {
+    idx: 1,
+    version: "5",
+    when: 1700000000001,
+    tag: "0001_outbox",
+    breakpoints: true,
+  },
     ],
   },
   migrations: {
@@ -26,6 +33,13 @@ export const migrations = {
       "passed" text,
       "solved_at" text,
       "created_at" text NOT NULL
+    )`,
+    m0001: `CREATE TABLE "outbox" (
+    "id" text PRIMARY KEY NOT NULL,
+    "endpoint" text NOT NULL,
+    "method" text NOT NULL,
+    "body" text NOT NULL,
+    "created_at" text NOT NULL
     )`,
   },
 };

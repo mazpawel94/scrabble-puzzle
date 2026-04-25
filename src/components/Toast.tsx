@@ -9,12 +9,14 @@ import {
 const Toast = () => {
   const { snackbarMessage } = useGlobalContext();
   const { setSnackbarMessage } = useGlobalActionsContext();
-
+  if (!snackbarMessage) return null;
   return (
     <Portal>
       <Snackbar
-        theme={{ colors: { primary: "white" } }}
         visible={!!snackbarMessage}
+        theme={{
+          colors: { inverseOnSurface: "white", inversePrimary: "white" },
+        }}
         onDismiss={() => setSnackbarMessage("")}
         duration={1000}
         action={{
@@ -40,9 +42,9 @@ const styles = StyleSheet.create({
     bottom: 600,
   },
   success: {
-    backgroundColor: "green", // zielony dla sukcesu
+    backgroundColor: "green",
   },
   error: {
-    backgroundColor: "red", // czerwony dla błędu
+    backgroundColor: "red",
   },
 });

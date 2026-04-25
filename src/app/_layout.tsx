@@ -26,7 +26,10 @@ const AppContent = () => {
           contentStyle: { backgroundColor: "transparent" },
           animation: "fade_from_bottom",
         }}
-      />
+      >
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="task/[level]" />
+      </Stack>
     </>
   );
 };

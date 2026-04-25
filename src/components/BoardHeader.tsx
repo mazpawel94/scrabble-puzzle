@@ -24,7 +24,13 @@ const BoardHeader = () => {
 
   return (
     <View style={[styles.wrapper]}>
-      <View style={{ display: "flex", gap: 5, flexDirection: "row" }}>
+      <View
+        style={{
+          display: "flex",
+          gap: 5,
+          flexDirection: "row",
+        }}
+      >
         {[...Array(6)].map((_, i) => (
           <View
             key={i}
@@ -50,7 +56,7 @@ export default BoardHeader;
 
 const styles = StyleSheet.create({
   wrapper: {
-    height: 40,
+    height: 30,
     alignSelf: "stretch",
     marginLeft: 5,
     marginRight: 5,
@@ -60,7 +66,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
   },
   osps: {
     display: "flex",

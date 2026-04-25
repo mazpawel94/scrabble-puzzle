@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -18,19 +18,25 @@ export default function DiagramScreen() {
   const {
     floatingTile,
     height,
-    index,
     level,
+    isLayoutReady,
     panelHeight,
     handleContainerLayout,
     handleFieldPress,
     handleFloatingDragEnd,
     handleTilePress,
   } = useDiagramScreen();
-
   const containerRef = useRef<View>(null!);
 
-  const { tasks } = useGlobalContext();
-  const { incrementIndex } = useGlobalActionsContext();
+  const { userRank, currentTask } = useGlobalContext();
+  const { nextDiagram } = useGlobalActionsContext();
+
+  const [counter, setCounter] = useState(0);
+  useEffect(() => {
+    if (currentTask) {
+      setCounter((prev) => prev + 1);
+    }
+  }, [currentTask]);
 
   return (
     <SafeAreaView
@@ -39,46 +45,52 @@ export default function DiagramScreen() {
       edges={["bottom", "top"]}
       onLayout={handleContainerLayout}
     >
-      <Text
-        style={[styles.header, { height: height * 0.1 }]}
-        onPress={incrementIndex}
-      >
-        Poziom: {level} ({index}/{tasks.length})
-      </Text>
-      <BoardHeader />
-      <View style={[styles.boardArea]}>
-        {Platform.OS === "web" ? (
-          <Text style={styles.webInfo}>Skia nie jest wspierana na web.</Text>
-        ) : (
-          // <ZoomablePanView
-          //   contentWidth={boardWidth}
-          //   contentHeight={boardHeight}
-          //   containerWidth={width}
-          //   containerHeight={boardAreaHeight}
-          //   minScale={1}
-          //   maxScale={5}
-          // >
-          <ScrabbleBoard
-            containerRef={containerRef}
-            onFieldPress={handleFieldPress}
-            onTilePress={handleTilePress}
-          />
-          // </ZoomablePanView>
-        )}
-      </View>
-      <View style={[styles.lettersPanel]}>
-        <Rack panelHeight={panelHeight} />
-      </View>
-      <View style={[styles.space]}></View>
-      <Toast />
-      <ActionPanel />
-      {floatingTile ? (
-        <FloatingTile
-          letter={floatingTile.letter}
-          startX={floatingTile.absX}
-          startY={floatingTile.absY}
-          onDragEnd={handleFloatingDragEnd}
-        />
+      {isLayoutReady ? (
+        <>
+          <Text
+            style={[styles.header, { height: height * 0.1 }]}
+            onPress={() => nextDiagram()}
+          >
+            Level: {currentTask?.level} userRank: ({(userRank || 0).toFixed(2)})
+          </Text>
+          <BoardHeader />
+          <View style={[styles.boardArea]}>
+            {Platform.OS === "web" ? (
+              <Text style={styles.webInfo}>
+                Skia nie jest wspierana na web.
+              </Text>
+            ) : (
+              // <ZoomablePanView
+              //   contentWidth={boardWidth}
+              //   contentHeight={boardHeight}
+              //   containerWidth={width}
+              //   containerHeight={boardAreaHeight}
+              //   minScale={1}
+              //   maxScale={5}
+              // >
+              <ScrabbleBoard
+                containerRef={containerRef}
+                onFieldPress={handleFieldPress}
+                onTilePress={handleTilePress}
+              />
+              // </ZoomablePanView>
+            )}
+          </View>
+          <View style={[styles.lettersPanel]}>
+            <Rack panelHeight={panelHeight} />
+          </View>
+          <View style={[styles.space]}></View>
+          <Toast />
+          <ActionPanel />
+          {floatingTile ? (
+            <FloatingTile
+              letter={floatingTile.letter}
+              startX={floatingTile.absX}
+              startY={floatingTile.absY}
+              onDragEnd={handleFloatingDragEnd}
+            />
+          ) : null}
+        </>
       ) : null}
     </SafeAreaView>
   );
