@@ -1,24 +1,14 @@
 import { Group, Rect } from "@shopify/react-native-skia";
 
+import { EBoardTileState } from "@/types";
 import useBoardTile from "./hooks/useBoardTile";
 import TileLetter from "./TileLetter";
 import TilePoints from "./TilePoints";
 
-export enum EBoardFieldState {
-  suggestion = "suggestion",
-  done = "done",
-  sketch = "sketch",
-  changed = "changed",
-  newMove = "newMove",
-}
-
 const TILE_COLORS: Record<string, string> = {
-  basic: "#f8e8c7",
-  [EBoardFieldState.suggestion]: "#f8e8c7",
-  [EBoardFieldState.done]: "#f8e8c7",
-  [EBoardFieldState.sketch]: "#f8e8c7", // opacity obsługiwana osobno
-  [EBoardFieldState.changed]: "#777777",
-  [EBoardFieldState.newMove]: "#1ae825",
+  [EBoardTileState.initial]: "#f8e8c7",
+  [EBoardTileState.correct]: "#1ae825",
+  [EBoardTileState.newMove]: "#32f0d6",
 };
 
 export const LETTER_COLOR = "#015b52";
@@ -31,16 +21,10 @@ export interface BoardTileProps {
   y: number;
   letter?: string;
   transparent?: boolean;
-  newMove?: boolean;
+  state: EBoardTileState;
 }
 
-const BoardTile: React.FC<BoardTileProps> = ({
-  size,
-  x,
-  y,
-  letter,
-  newMove = false,
-}) => {
+const BoardTile: React.FC<BoardTileProps> = ({ size, x, y, letter, state }) => {
   const { isBlank, letterFont, pointFont } = useBoardTile(size, letter);
 
   if (!letter) {
@@ -62,9 +46,7 @@ const BoardTile: React.FC<BoardTileProps> = ({
         y={y + 0.5}
         width={size - 1}
         height={size - 1}
-        color={
-          newMove ? TILE_COLORS[EBoardFieldState.newMove] : TILE_COLORS.basic
-        }
+        color={TILE_COLORS[state] || "#f8e8c7"}
       />
 
       <TileLetter

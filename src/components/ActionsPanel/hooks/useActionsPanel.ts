@@ -8,6 +8,7 @@ import {
 import { deleteDiagram } from "@/db";
 import { useOutbox } from "@/hooks/useOutbox";
 import { postTaskResult } from "@/services/api";
+import { EBoardTileState } from "@/types";
 import {
   convertBoardStateToStringSolution,
   convertWordToLettersArray,
@@ -79,7 +80,11 @@ const useActionsPanel = () => {
       currentTask!.solution.coordinates,
     );
     setUserSolutionTiles(
-      solutionTiles.map((el) => ({ ...el, isNewMove: true })),
+      solutionTiles.map((el) => ({
+        ...el,
+        state: EBoardTileState.correct,
+        isLocked: true,
+      })),
     );
     setRackLetters((prev) => prev.map((el) => ({ ...el, played: true })));
   }, [currentTask, handleTaskCompletion]);
@@ -97,6 +102,14 @@ const useActionsPanel = () => {
       currentTask.solution.word === word
     ) {
       setSnackbarMessage(`Poprawne rozwiązanie 🎉`);
+      setUserSolutionTiles((prev) =>
+        prev.map((el) => ({
+          ...el,
+          state: EBoardTileState.correct,
+          isLocked: true,
+        })),
+      );
+      setRackLetters((prev) => prev.map((el) => ({ ...el, played: true })));
       setUserRank((prev) => prev! + Math.max(-1, userDiagramRank));
       setIsActive(false);
       handleTaskCompletion(true);
@@ -155,7 +168,7 @@ const useActionsPanel = () => {
         setUserDiagramRank((prev) => prev - 0.5);
         const firstTile = solutionTiles[0];
         setUserSolutionTiles([
-          { ...firstTile, isNewMove: true, isLocked: true },
+          { ...firstTile, state: EBoardTileState.newMove, isLocked: true },
         ]);
         const letter =
           firstTile.letter !== firstTile.letter.toUpperCase()
@@ -177,8 +190,12 @@ const useActionsPanel = () => {
         setUserDiagramRank((prev) => prev - 0.3);
 
         setUserSolutionTiles([
-          { ...solutionTiles[0], isNewMove: true, isLocked: true },
-          { ...lastTile, isNewMove: true, isLocked: true },
+          {
+            ...solutionTiles[0],
+            state: EBoardTileState.newMove,
+            isLocked: true,
+          },
+          { ...lastTile, state: EBoardTileState.newMove, isLocked: true },
         ]);
         const letter =
           lastTile.letter !== lastTile.letter.toUpperCase()

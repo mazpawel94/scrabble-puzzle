@@ -9,7 +9,8 @@ import Animated, {
 import { LetterKey, POINTS } from "@/constants/BoardFields";
 import { useGlobalContext } from "@/contexts/GlobalContext";
 
-const TILE_COLOR = "#1ae825";
+// const TILE_COLOR = "#1ae825";
+const TILE_COLOR = "#32f0d6";
 const LETTER_COLOR = "#015b52";
 const LETTER_COLOR_BLANK = "#015b5266";
 const SPRING = { damping: 22, stiffness: 350, mass: 0.8 };

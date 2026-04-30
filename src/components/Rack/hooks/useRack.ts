@@ -5,6 +5,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { View, useWindowDimensions } from "react-native";
 
+import { EBoardTileState } from "@/types";
 import { RackLetter } from "../Rack";
 
 // 7 stałych kluczy bufora — zawsze te same, żeby biblioteka nie remountowała
@@ -78,7 +79,7 @@ const useRack = (panelHeight: number) => {
       });
       setUserSolutionTiles((prev) => [
         ...prev,
-        { letter, x: fieldX, y: fieldY, isNewMove: true },
+        { letter, x: fieldX, y: fieldY, state: EBoardTileState.newMove },
       ]);
     },
     [boardLayoutParams, fieldSize, currentLettersOnBoard, userSolutionTiles],

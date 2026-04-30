@@ -156,6 +156,8 @@ export const BlankPickerModal = ({ onConfirm }: Props) => {
           onPress={handleConfirm}
           disabled={!selected}
           style={styles.button}
+          textColor="#023a0a"
+          buttonColor="#f8e8c7"
         >
           OK
         </Button>
@@ -187,7 +189,5 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 20,
-    backgroundColor: "#f8e8c7",
-    color: "#023a0a",
   },
 });

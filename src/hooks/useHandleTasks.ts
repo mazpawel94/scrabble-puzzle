@@ -1,29 +1,37 @@
 import { Task } from "@/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { examples } from "@/utils/examples";
 import { useSync } from "./useSync";
 
 // na później do uzupełnienia panel admina
-// import { examples } from "@/utils/examples";
 // import { osps50 } from "@/utils/osps50";
 // import { osps52 } from "@/utils/osps52";
 // if (level === "unknown")
-//   // return examples.map((el) => ({
-//   //   ...el,
-//   //   id: "0",
-//   //   createdAt: new Date().toISOString(),
-//   // })) as Task[];
-//   return {
-//     0: examples.map((el) => ({
-//       ...el,
-//       id: "0",
-//       createdAt: new Date().toISOString(),
-//     })) as Task[],
-//   };
+// return examples.map((el) => ({
+//   ...el,
+//   id: "0",
+//   createdAt: new Date().toISOString(),
+// })) as Task[];
+// return {
+//   0: examples.map((el) => ({
+//     ...el,
+//     id: "0",
+//     createdAt: new Date().toISOString(),
+//   })) as Task[],
+// };
 
 const useHandleTasks = (userRank: number | null) => {
   const [currentTask, setCurrentTask] = useState<Task | undefined>(undefined);
 
+  const [adminTasks, setAdminTasks] = useState(
+    examples.map((el) => ({
+      ...el,
+      id: "0",
+      createdAt: new Date().toISOString(),
+    })) as Task[],
+  );
+  const adminIndexRef = useRef<number>(0);
   const queueRef = useRef<Record<number, Task[]>>({});
   const [queueReady, setQueueReady] = useState(false);
 
@@ -57,12 +65,17 @@ const useHandleTasks = (userRank: number | null) => {
   const nextDiagram = useCallback(
     (level?: number) => {
       if (!queueReady) return;
+      if (level === -10) {
+        setCurrentTask(adminTasks[adminIndexRef.current]);
+        adminIndexRef.current = adminIndexRef.current + 1;
+        return;
+      }
       const rank = level || userRank;
       const task = pickTask(Math.min(10, Math.max(1, rank!)));
       if (!task) return;
       setCurrentTask(task);
     },
-    [queueReady, userRank, pickTask],
+    [queueReady, userRank, pickTask, adminTasks],
   );
 
   useEffect(() => {

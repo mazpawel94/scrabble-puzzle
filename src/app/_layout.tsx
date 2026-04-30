@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as Updates from "expo-updates";
 import { useEffect } from "react";
-import { StyleSheet } from "react-native";
+import { ActivityIndicator, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
 
@@ -14,7 +14,13 @@ import { useDbMigrations } from "@/db";
 
 const AppContent = () => {
   const { status } = useAuth();
-  if (status === "loading") return null;
+  if (status === "loading")
+    return (
+      <>
+        <AppBackground />
+        <ActivityIndicator size="large" />
+      </>
+    );
 
   return (
     <>

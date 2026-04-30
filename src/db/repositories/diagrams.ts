@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { db } from "../client";
 import { diagrams } from "../schema";
 
@@ -29,5 +29,11 @@ export async function upsertDiagrams(items: NewDiagram[]): Promise<void> {
 }
 
 export async function deleteDiagram(id: string): Promise<void> {
-  await db.delete(diagrams).where(eq(diagrams.id, id));
+  await db
+    .delete(diagrams)
+    .where(and(eq(diagrams.id, id), eq(diagrams.isLiked, false)));
+}
+
+export async function likeDiagram(id: string): Promise<void> {
+  await db.update(diagrams).set({ isLiked: true }).where(eq(diagrams.id, id));
 }

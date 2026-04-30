@@ -17,12 +17,15 @@ export function useSync() {
       // 1. Załaduj lokalne dane natychmiast
       const local = await getAllDiagrams();
       setDiagrams(
-        local.map((el) => ({
-          ...el,
-          words: JSON.parse(el.words),
-          solution: JSON.parse(el.solution),
-          level: el.level || undefined,
-        })),
+        local
+          .map((el) => ({
+            ...el,
+            words: JSON.parse(el.words),
+            solution: JSON.parse(el.solution),
+            level: el.level || undefined,
+            tags: JSON.parse(el.tags),
+          }))
+          .filter((el) => !el.isLiked),
       );
 
       // 2. Sync w tle jeśli jest internet
@@ -56,12 +59,15 @@ export function useSync() {
           await upsertDiagrams(newTasks);
           const actualData = await getAllDiagrams();
           setDiagrams(
-            actualData.map((el) => ({
-              ...el,
-              words: JSON.parse(el.words),
-              solution: JSON.parse(el.solution),
-              level: el.level || undefined,
-            })),
+            actualData
+              .map((el) => ({
+                ...el,
+                words: JSON.parse(el.words),
+                solution: JSON.parse(el.solution),
+                level: el.level || undefined,
+                tags: JSON.parse(el.tags),
+              }))
+              .filter((el) => !el.isLiked),
           );
         }
 

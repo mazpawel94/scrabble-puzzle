@@ -1,4 +1,5 @@
 import { FIELDS_PARAMS } from "@/constants/BoardFields";
+import { EBoardTileState } from "@/types";
 import { Canvas, Fill, Group, Path, Rect } from "@shopify/react-native-skia";
 import React, { RefObject } from "react";
 import { View } from "react-native";
@@ -32,7 +33,6 @@ const ScrabbleBoard: React.FC<ScrabbleBoardProps> = ({
     handleOnLayout,
     handleTouchStart,
   } = useScrabbleBoard(onFieldPress, onTilePress, containerRef);
-
   return (
     <View
       ref={boardRef}
@@ -95,7 +95,7 @@ const ScrabbleBoard: React.FC<ScrabbleBoardProps> = ({
           />
         ))}
         {boardTiles
-          .filter((el) => !el.isMoved)
+          .filter((el) => el.state !== EBoardTileState.moved)
           .map((letter, i) => (
             <BoardTile
               key={i}
@@ -103,7 +103,7 @@ const ScrabbleBoard: React.FC<ScrabbleBoardProps> = ({
               x={letter.x * fieldSize}
               y={letter.y * fieldSize}
               size={fieldSize}
-              newMove={letter.isNewMove}
+              state={letter.state}
             />
           ))}
         {/* Siatka na wierzchu wszystkich pól */}

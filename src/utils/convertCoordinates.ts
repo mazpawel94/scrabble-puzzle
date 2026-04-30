@@ -92,10 +92,6 @@ export const convertBoardStateToStringSolution = (
     letter: string;
   }[],
 ) => {
-  // const newTiles = boardState.filter(
-  //   (el) => el.state === EBoardFieldState.newMove,
-  // );
-
   const isVertical = new Set(newTiles.map((el) => el.x)).size === 1;
   const [key, perpendicularKey] = isVertical
     ? ["x" as const, "y" as const]
@@ -169,7 +165,7 @@ export const convertBoardStateToStringSolution = (
       (acc, curr) => acc * wordMultiplerByIndex[curr.x + curr.y * 15],
       1,
     );
-    
+
   return {
     points:
       newTiles.length === 1 && !tilesOnBoard.length

@@ -1,7 +1,7 @@
 import {
-    enqueue,
-    getPendingRequests,
-    removeFromQueue,
+  enqueue,
+  getPendingRequests,
+  removeFromQueue,
 } from "@/db/repositories/outbox";
 import api from "@/services/api";
 import NetInfo from "@react-native-community/netinfo";
@@ -12,12 +12,12 @@ export function useOutbox() {
     if (!net.isConnected) return;
 
     const pending = await getPendingRequests();
-    console.log({pending});
+    console.log({ pending });
     for (const item of pending) {
       try {
         const { data } = await api.post(item.endpoint, JSON.parse(item.body));
         if (data) await removeFromQueue(item.id);
-      } catch {
+      } catch (error) {
         break; // brak internetu w trakcie — spróbuj następnym razem
       }
     }
@@ -34,7 +34,10 @@ export function useOutbox() {
         if (method !== "POST") return;
         const { data } = await api.post(endpoint, body);
 
-        if (data) return;
+        if (data) {
+          flush();
+          return;
+        }
         // jeśli request się nie udał, zakolejkuj
       } catch {}
     }

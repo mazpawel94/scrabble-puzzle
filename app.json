@@ -8,7 +8,8 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "platforms": ["ios", "android"],
+    "platforms": ["android"],
+    // "platforms": ["ios", "android"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.myapp",

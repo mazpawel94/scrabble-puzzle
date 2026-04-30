@@ -1,4 +1,12 @@
 export type LEVEL = "easy" | "medium" | "hard" | "unknown" | "resume";
+
+export enum EBoardTileState {
+  initial = "initial",
+  newMove = "newMove",
+  moved = "moved",
+  correct = "correct",
+}
+
 export interface Task {
   id: string;
   level?: number;
@@ -22,9 +30,8 @@ export interface IBoardTile {
   x: number;
   y: number;
   letter: string;
-  isNewMove?: boolean;
-  isMoved?: boolean;
   isLocked?: boolean;
+  state: EBoardTileState;
 }
 
 export interface IBoardLayoutParams {

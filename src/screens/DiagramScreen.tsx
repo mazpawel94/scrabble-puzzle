@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -6,12 +6,15 @@ import { ActionPanel } from "@/components/ActionsPanel/ActionsPanel";
 import ScrabbleBoard from "@/components/Board/ScrabbleBoard";
 import BoardHeader from "@/components/BoardHeader";
 import FloatingTile from "@/components/BoardTile/FloatingTile";
+import FavoriteButton from "@/components/FavoriteButton";
 import Rack from "@/components/Rack/Rack";
 import Toast from "@/components/Toast";
 import {
   useGlobalActionsContext,
   useGlobalContext,
 } from "@/contexts/GlobalContext";
+import { likeDiagram } from "@/db";
+import { EBoardTileState } from "@/types";
 import useDiagramScreen from "./hooks/useDiagramScreen";
 
 export default function DiagramScreen() {
@@ -28,15 +31,14 @@ export default function DiagramScreen() {
   } = useDiagramScreen();
   const containerRef = useRef<View>(null!);
 
-  const { userRank, currentTask } = useGlobalContext();
+  const { currentTask, userSolutionTiles, isAdmin } = useGlobalContext();
   const { nextDiagram } = useGlobalActionsContext();
 
-  const [counter, setCounter] = useState(0);
-  useEffect(() => {
-    if (currentTask) {
-      setCounter((prev) => prev + 1);
-    }
-  }, [currentTask]);
+  const addToFavorites = () => likeDiagram(currentTask?.id || "");
+  const handlePress = () => {
+    if (!isAdmin) return;
+    nextDiagram(-10);
+  };
 
   return (
     <SafeAreaView
@@ -47,12 +49,33 @@ export default function DiagramScreen() {
     >
       {isLayoutReady ? (
         <>
-          <Text
-            style={[styles.header, { height: height * 0.1 }]}
-            onPress={() => nextDiagram()}
-          >
-            Level: {currentTask?.level} userRank: ({(userRank || 0).toFixed(2)})
-          </Text>
+          {userSolutionTiles.some(
+            (el) => el.state === EBoardTileState.correct,
+          ) ? (
+            <View
+              style={[
+                {
+                  height: height * 0.1,
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "flex-end",
+                  justifyContent: "flex-end",
+                  marginBottom: 4,
+                },
+              ]}
+            >
+              <FavoriteButton onToggle={addToFavorites} />
+            </View>
+          ) : (
+            <Text
+              style={[styles.header, { height: height * 0.1 }]}
+              onPress={handlePress}
+            >
+              Znajdź najdroższy ruch
+              {/* Level: {currentTask?.level} userRank: ({(userRank || 0).toFixed(2)}) */}
+            </Text>
+          )}
+
           <BoardHeader />
           <View style={[styles.boardArea]}>
             {Platform.OS === "web" ? (

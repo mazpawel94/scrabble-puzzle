@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 
+import { useGlobalContext } from "@/contexts/GlobalContext";
 import { BlankPickerModal } from "../BlankPickerModal";
 import NewDiagramForm from "../NewDiagramForm";
 import { ActionBar } from "./ActionBar";
@@ -20,6 +21,7 @@ export const ActionPanel = () => {
     showHint,
   } = useActionsPanel();
   const [formIsOpen, setFormIsOpen] = useState<boolean>(false);
+  const { isAdmin } = useGlobalContext();
 
   return (
     <>
@@ -29,12 +31,20 @@ export const ActionPanel = () => {
       {isBlankModalOpen ? <BlankPickerModal onConfirm={defineBlank} /> : null}
       <ActionBar
         actions={[
-          {
-            icon: "arrow-down",
-            label: "Odłóż",
-            onPress: resetRack,
-            disabled: isDisabledResetRack || !isActive,
-          },
+          ...[
+            isAdmin
+              ? {
+                  icon: "plus",
+                  label: "Zapisz",
+                  onPress: () => setFormIsOpen(true),
+                }
+              : {
+                  icon: "arrow-down",
+                  label: "Odłóż",
+                  onPress: resetRack,
+                  disabled: isDisabledResetRack || !isActive,
+                },
+          ],
           {
             icon: "lightbulb-outline",
             label: "Podpowiedź",
@@ -58,11 +68,6 @@ export const ActionPanel = () => {
                   onPress: handleNextDiagram,
                 },
           ],
-          // {
-          //   icon: "plus",
-          //   label: "Zapisz",
-          //   onPress: () => setFormIsOpen(true),
-          // },
         ]}
       />
     </>

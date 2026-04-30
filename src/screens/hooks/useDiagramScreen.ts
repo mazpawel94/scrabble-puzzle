@@ -2,7 +2,7 @@ import {
   useGlobalActionsContext,
   useGlobalContext,
 } from "@/contexts/GlobalContext";
-import { LEVEL } from "@/types";
+import { EBoardTileState, LEVEL } from "@/types";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useWindowDimensions, View } from "react-native";
@@ -58,7 +58,10 @@ const useDiagramScreen = () => {
     const col = Math.floor((absX - boardLayoutParams.x) / fieldSize);
     const row = Math.floor((absY - boardLayoutParams.y) / fieldSize);
     setUserSolutionTiles((prev) =>
-      prev.map((el) => ({ ...el, isMoved: el.x === col && el.y === row })),
+      prev.map((el) => ({
+        ...el,
+        state: el.x === col && el.y === row ? EBoardTileState.moved : el.state,
+      })),
     );
     // Koryguj X o offset kontenera (SafeAreaView z alignItems: "center")
     setFloatingTile({ letter, absX: absX - containerOffsetX.current, absY });
@@ -85,15 +88,19 @@ const useDiagramScreen = () => {
       if (!isBusy) {
         setUserSolutionTiles((prev) =>
           prev.map((el) =>
-            el.isMoved ? { ...el, x: col, y: row, isMoved: false } : el,
+            el.state === EBoardTileState.moved
+              ? { ...el, x: col, y: row, state: EBoardTileState.newMove }
+              : el,
           ),
         );
       } else
         setUserSolutionTiles((prev) =>
-          prev.map((el) => ({ ...el, isMoved: false })),
+          prev.map((el) => ({ ...el, state: EBoardTileState.newMove })),
         );
     } else {
-      setUserSolutionTiles((prev) => prev.filter((el) => !el.isMoved));
+      setUserSolutionTiles((prev) =>
+        prev.filter((el) => el.state !== EBoardTileState.moved),
+      );
       const isBlank = letter === letter.toLowerCase();
       setRackLetters((prev) =>
         prev.map((el, index) =>

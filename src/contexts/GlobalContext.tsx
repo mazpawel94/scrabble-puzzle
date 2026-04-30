@@ -14,7 +14,13 @@ import {
   getUserRank,
   setUserRank as setUserRankStorage,
 } from "@/storage/syncMeta";
-import { IBoardLayoutParams, IBoardTile, LEVEL, Task } from "@/types";
+import {
+  EBoardTileState,
+  IBoardLayoutParams,
+  IBoardTile,
+  LEVEL,
+  Task,
+} from "@/types";
 import { convertWordToLettersArray } from "@/utils/convertCoordinates";
 
 const BOARD_CHROME = 3 * 2 + 4 * 2;
@@ -24,6 +30,7 @@ const levelMap: Record<string, number> = {
   easy: 1,
   medium: 4,
   hard: 7,
+  unknown: -10,
 };
 
 interface IGlobalContext {
@@ -33,6 +40,7 @@ interface IGlobalContext {
   currentLettersOnBoard: IBoardTile[];
   currentTask: Task | undefined;
   fieldSize: number;
+  isAdmin: boolean;
   selectedLevel: LEVEL;
   moveIsCorrect: boolean;
   userRank: number | null;
@@ -58,6 +66,7 @@ interface IGlobalActionsContext {
   setTextToDebug: React.Dispatch<React.SetStateAction<string | null>>;
   setUserRank: React.Dispatch<React.SetStateAction<number | null>>;
   setUserSolutionTiles: React.Dispatch<React.SetStateAction<IBoardTile[]>>;
+  setIsAdmin: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const GlobalContext = createContext<IGlobalContext>({
@@ -75,6 +84,7 @@ export const GlobalContext = createContext<IGlobalContext>({
   selectedLevel: "unknown",
   textToDebug: null,
   userSolutionTiles: [],
+  isAdmin: false,
 });
 
 export const GlobalActionsContext = createContext<IGlobalActionsContext>({
@@ -88,6 +98,7 @@ export const GlobalActionsContext = createContext<IGlobalActionsContext>({
   setTextToDebug: () => {},
   setUserSolutionTiles: () => {},
   setUserRank: () => {},
+  setIsAdmin: () => {},
 });
 
 export const useGlobalContext = () => useContext(GlobalContext);
@@ -96,7 +107,7 @@ export const useGlobalActionsContext = () => useContext(GlobalActionsContext);
 
 export const GlobalContextProvider = ({ children }: any) => {
   const { width } = useWindowDimensions();
-
+  const [isAdmin, setIsAdmin] = useState(false);
   const [boardLayoutParams, setBoardLayoutParams] =
     useState<IBoardLayoutParams>({ x: 0, y: 0, width: 0, height: 0 });
   const [attemptsCount, setAttemptsCount] = useState<number>(0);
@@ -123,7 +134,10 @@ export const GlobalContextProvider = ({ children }: any) => {
   const currentLettersOnBoard: IBoardTile[] = useMemo(() => {
     return currentTask
       ? currentTask.words.flatMap((move) =>
-          convertWordToLettersArray(move.word, move.coordinates),
+          convertWordToLettersArray(move.word, move.coordinates).map((el) => ({
+            ...el,
+            state: EBoardTileState.initial,
+          })),
         )
       : [];
   }, [currentTask]);
@@ -185,6 +199,7 @@ export const GlobalContextProvider = ({ children }: any) => {
     textToDebug,
     userRank,
     userSolutionTiles,
+    isAdmin,
   };
   const actions = useMemo(
     () => ({
@@ -198,6 +213,7 @@ export const GlobalContextProvider = ({ children }: any) => {
       setTextToDebug,
       setUserRank,
       setUserSolutionTiles,
+      setIsAdmin,
     }),
     [nextDiagram],
   );

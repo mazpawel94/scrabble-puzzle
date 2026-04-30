@@ -13,6 +13,8 @@ export const diagrams = sqliteTable("diagrams", {
   passed: text("passed"),
   solvedAt: text("solved_at"),
   createdAt: text("created_at").notNull(),
+  isLiked: integer("is_liked", { mode: "boolean" }).notNull().default(false),
+  tags: text("tags").notNull().default("[]"),
 });
 
 export const outbox = sqliteTable("outbox", {

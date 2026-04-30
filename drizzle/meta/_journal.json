@@ -15,6 +15,13 @@
       "when": 1700000000001,
       "tag": "0001_outbox",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1700000000002,
+      "tag": "0002_add_liked_tags",
+      "breakpoints": true
     }
   ]
 }
