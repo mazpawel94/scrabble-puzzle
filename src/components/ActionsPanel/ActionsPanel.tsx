@@ -8,6 +8,7 @@ import useActionsPanel from "./hooks/useActionsPanel";
 
 export const ActionPanel = () => {
   const {
+    availableHints,
     hintsCount,
     isActive,
     isBlankModalOpen,
@@ -19,6 +20,7 @@ export const ActionPanel = () => {
     handleNextDiagram,
     resetRack,
     showHint,
+    shuffleRack,
   } = useActionsPanel();
   const [formIsOpen, setFormIsOpen] = useState<boolean>(false);
   const { isAdmin } = useGlobalContext();
@@ -31,6 +33,12 @@ export const ActionPanel = () => {
       {isBlankModalOpen ? <BlankPickerModal onConfirm={defineBlank} /> : null}
       <ActionBar
         actions={[
+          {
+            icon: "arrow-down",
+            label: "Odłóż",
+            onPress: resetRack,
+            disabled: isDisabledResetRack || !isActive,
+          },
           ...[
             isAdmin
               ? {
@@ -39,24 +47,25 @@ export const ActionPanel = () => {
                   onPress: () => setFormIsOpen(true),
                 }
               : {
-                  icon: "arrow-down",
-                  label: "Odłóż",
-                  onPress: resetRack,
-                  disabled: isDisabledResetRack || !isActive,
+                  icon: "swap-horizontal-variant",
+                  label: "Mieszaj",
+                  onPress: shuffleRack,
+                  disabled: !isActive,
                 },
           ],
-          {
-            icon: "lightbulb-outline",
-            label: "Podpowiedź",
-            onPress: showHint,
-            disabled: hintsCount >= 3 || !isActive,
-            number: hintsCount,
-          },
+
           {
             icon: "check",
             label: "Zatwierdź",
             onPress: handleCheck,
             disabled: !isActive || !moveIsCorrect,
+          },
+          {
+            icon: "lightbulb-outline",
+            label: "Podpowiedź",
+            onPress: showHint,
+            disabled: hintsCount >= availableHints || !isActive,
+            number: hintsCount,
           },
 
           ...[

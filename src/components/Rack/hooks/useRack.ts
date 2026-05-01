@@ -43,13 +43,19 @@ const useRack = (panelHeight: number) => {
         .map((el) => el.id);
 
       const isOutsideBoard =
-        absX < boardLayoutParams.x ||
-        absX > boardLayoutParams.x + boardLayoutParams.width ||
-        absY < boardLayoutParams.y ||
-        absY > boardLayoutParams.y + boardLayoutParams.height;
+        absX + 15 < boardLayoutParams.x ||
+        absX - 15 > boardLayoutParams.x + boardLayoutParams.width ||
+        absY + 15 < boardLayoutParams.y ||
+        absY - 15 > boardLayoutParams.y + boardLayoutParams.height;
 
-      const fieldX = Math.floor((absX - boardLayoutParams.x) / fieldSize);
-      const fieldY = Math.floor((absY - boardLayoutParams.y) / fieldSize);
+      const computedFieldX = Math.floor(
+        (absX - boardLayoutParams.x) / fieldSize,
+      );
+      const computedFieldY = Math.floor(
+        (absY - boardLayoutParams.y) / fieldSize,
+      );
+      const fieldX = Math.min(14, Math.max(0, computedFieldX));
+      const fieldY = Math.min(14, Math.max(0, computedFieldY));
 
       const isBusy = [
         ...(currentLettersOnBoard || []),

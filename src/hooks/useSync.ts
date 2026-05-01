@@ -11,7 +11,6 @@ export function useSync() {
 
   const [diagrams, setDiagrams] = useState<Task[]>([]);
   const [syncing, setSyncing] = useState(false);
-
   useEffect(() => {
     (async () => {
       // 1. Załaduj lokalne dane natychmiast
@@ -53,6 +52,7 @@ export function useSync() {
                 ? el.words
                 : JSON.stringify(el.words),
             level: el.level || 0,
+            tags: JSON.stringify(el.tags),
           }));
 
         if (newTasks.length > 0) {

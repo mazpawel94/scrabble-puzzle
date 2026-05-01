@@ -128,12 +128,23 @@ const useActionsPanel = () => {
     attemptsCount,
   ]);
 
-  const handleNextDiagram = useCallback(() => {
-    deleteDiagram(currentTask!.id);
+  const handleNextDiagram = useCallback(async () => {
+    await deleteDiagram(currentTask!.id);
     if (userDiagramRank === 1) nextDiagram((currentTask!.level || -1) + 1);
     else if (userDiagramRank <= -1) nextDiagram((currentTask!.level || 1) - 1);
     else nextDiagram(Math.floor(userRank!));
   }, [userDiagramRank, userRank, currentTask, nextDiagram]);
+
+  const shuffleRack = useCallback(() => {
+    setRackLetters((prev) => {
+      const shuffled = [...prev];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    });
+  }, []);
 
   const resetRack = useCallback(() => {
     setUserSolutionTiles((prev) => prev.filter((el) => el.isLocked));
@@ -234,9 +245,14 @@ const useActionsPanel = () => {
     handleNextDiagram,
     resetRack,
     showHint,
+    shuffleRack,
     hintsCount,
     isActive,
     isBlankModalOpen,
+    availableHints: Math.min(
+      3,
+      currentTask?.solution.word.replaceAll(".", "").length || 0,
+    ),
     isDisabledResetRack: userSolutionTiles.length === 0,
     moveIsCorrect,
   };

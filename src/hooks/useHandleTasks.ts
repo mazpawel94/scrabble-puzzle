@@ -40,9 +40,8 @@ const useHandleTasks = (userRank: number | null) => {
   const pickTask = useCallback((rank: number) => {
     const key = Math.floor(rank);
 
-    console.log("Picking task for rank:", rank, "key:", key);
     const queue = queueRef.current;
-
+    console.log("liczba zadań lvl 1 w pickTask: ", queue[1].length);
     // Szukaj zadania na poziomie rank, jeśli brak — szukaj na sąsiednich poziomach
     for (let offset = 0; offset <= 10; offset++) {
       for (const candidate of [key - offset, key + offset]) {
@@ -55,6 +54,7 @@ const useHandleTasks = (userRank: number | null) => {
             ...queue,
             [candidate]: tasks.slice(1),
           };
+          console.log("selectedTaskId: ", task.id);
           return task;
         }
       }
@@ -87,7 +87,6 @@ const useHandleTasks = (userRank: number | null) => {
       }),
       {} as Record<number, Task[]>,
     );
-    console.log("Diagrams length:", diagrams.length);
     queueRef.current = databaseTasks;
     setQueueReady(true);
   }, [diagrams]);

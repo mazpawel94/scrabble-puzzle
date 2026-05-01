@@ -24,6 +24,7 @@ export async function upsertDiagrams(items: NewDiagram[]): Promise<void> {
         solution: diagrams.solution,
         level: diagrams.level,
         createdAt: diagrams.createdAt,
+        tags: diagrams.tags,
       },
     });
 }

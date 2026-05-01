@@ -23,6 +23,7 @@ const useDiagramScreen = () => {
     currentLettersOnBoard,
     fieldSize,
     userSolutionTiles,
+    rackLetters,
   } = useGlobalContext();
 
   const { setRackLetters, setSelectedLevel, setUserSolutionTiles } =
@@ -122,8 +123,24 @@ const useDiagramScreen = () => {
       if (checkIsBusy(col, row)) return;
 
       console.log(`Kliknięto pole [${row}, ${col}]`);
+      const firstRackLetter = rackLetters.find((el) => !el.played);
+      if (!firstRackLetter) return;
+      setUserSolutionTiles((prev) => [
+        ...prev,
+        {
+          x: col,
+          y: row,
+          state: EBoardTileState.newMove,
+          letter: firstRackLetter.letter,
+        },
+      ]);
+      setRackLetters((prev) =>
+        prev.map((el) =>
+          el.id === firstRackLetter.id ? { ...el, played: true } : el,
+        ),
+      );
     },
-    [checkIsBusy],
+    [checkIsBusy, rackLetters],
   );
 
   useEffect(() => {

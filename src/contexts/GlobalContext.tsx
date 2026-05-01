@@ -168,7 +168,6 @@ export const GlobalContextProvider = ({ children }: any) => {
         try {
           const savedRank = await getUserRank();
           nextDiagram(savedRank!);
-          console.log({ savedRank });
           setUserRank(savedRank!);
         } catch (error) {
           console.error("Błąd pobierania rankingu z resume:", error);

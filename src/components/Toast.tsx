@@ -18,11 +18,7 @@ const Toast = () => {
           colors: { inverseOnSurface: "white", inversePrimary: "white" },
         }}
         onDismiss={() => setSnackbarMessage("")}
-        duration={1000}
-        action={{
-          label: "OK",
-          onPress: () => setSnackbarMessage(""),
-        }}
+        duration={1500}
         style={[
           styles.snackbar,
           snackbarMessage.includes("Poprawne") ? styles.success : styles.error,
@@ -39,12 +35,12 @@ export default Toast;
 const styles = StyleSheet.create({
   snackbar: {
     zIndex: 100,
-    bottom: 600,
+    bottom: 100,
   },
   success: {
     backgroundColor: "green",
   },
   error: {
-    backgroundColor: "red",
+    backgroundColor: "#9e0707",
   },
 });
