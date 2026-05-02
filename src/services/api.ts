@@ -1,6 +1,8 @@
 import axios from "axios";
 
 import { storage } from "@/auth/storage";
+import { ITaskResult } from "@/components/ActionsPanel/hooks/useActionsPanel";
+import { IStatsState } from "@/contexts/statsReducer";
 import { Task } from "@/types";
 
 export interface IDiagramParams {
@@ -13,14 +15,6 @@ export interface IDiagramParams {
     text: string;
   }[];
   level: number;
-}
-
-export interface IUserDiagramParams {
-  userId: string;
-  diagramId: string;
-  attempts: number;
-  usedHints: number;
-  correctlySolved: boolean;
 }
 
 const API_BASE_URL = "https://gcg-report-viewer.onrender.com";
@@ -47,13 +41,18 @@ export const getTasks = async (
   return data;
 };
 
+export const getStats = async (userId: string): Promise<IStatsState> => {
+  const { data } = await api.get(`/user-diagram/${userId}/stats`);
+  return data;
+};
+
 export const postDiagram = async (diagram: IDiagramParams): Promise<string> => {
   const { data } = await api.post("/diagram", diagram);
   return data;
 };
 
 export const postTaskResult = async (
-  result: IUserDiagramParams,
+  result: ITaskResult,
   functionWrapper: (
     endpoint: string,
     method: string,

@@ -1,25 +1,27 @@
+import { Link, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
+
 import { useAuth } from "@/auth/AuthContext";
 import LevelButton from "@/components/LevelButton";
 import {
   useGlobalActionsContext,
   useGlobalContext,
 } from "@/contexts/GlobalContext";
+import HomeScreen from "@/screens/homeScreen/HomeScreen";
 import { getUserRank } from "@/storage/syncMeta";
-import { Link, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
-const FirstView = () => (
+const FirstView = ({ callback }: { callback: () => void }) => (
   <>
     <Text style={styles.title}>Wybierz poziom trudności</Text>
     <Link href="/task/easy" asChild>
-      <LevelButton level="easy" onPress={() => {}} />
+      <LevelButton level="easy" onPress={callback} />
     </Link>
     <Link href="/task/medium" asChild>
-      <LevelButton level="medium" onPress={() => {}} />
+      <LevelButton level="medium" onPress={callback} />
     </Link>
     <Link href="/task/hard" asChild>
-      <LevelButton level="hard" onPress={() => {}} />
+      <LevelButton level="hard" onPress={callback} />
     </Link>
   </>
 );
@@ -34,6 +36,8 @@ export default function Home() {
   const [isFirstTime, setIsFirstTime] = useState<boolean | undefined>(
     undefined,
   );
+  const callback = useCallback(() => setIsFirstTime(false), []);
+
   useEffect(() => {
     const isAdmin = userId === "aaea1d33-2b6a-4102-b4f9-3a68f2c9a75e";
     if (isAdmin) {
@@ -41,11 +45,9 @@ export default function Home() {
       setChecking(false);
     } else
       getUserRank().then((rank) => {
-        if (rank !== null) router.replace("/task/resume");
-        else {
-          setChecking(false);
-          setIsFirstTime(true);
-        }
+        setIsFirstTime(rank === null);
+        // router.replace("/task/resume");
+        setChecking(false);
       });
   }, []);
 
@@ -57,9 +59,11 @@ export default function Home() {
     );
   }
 
+  if (isFirstTime === false) return <HomeScreen />;
+
   return (
     <View style={styles.container}>
-      {isFirstTime || isAdmin ? <FirstView /> : null}
+      {isFirstTime || isAdmin ? <FirstView callback={callback} /> : null}
       {isAdmin ? (
         <Link href="/task/unknown" asChild>
           <LevelButton level="unknown" onPress={() => {}} />

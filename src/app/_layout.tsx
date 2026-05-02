@@ -8,8 +8,9 @@ import { PaperProvider } from "react-native-paper";
 
 import { AuthProvider, useAuth } from "@/auth/AuthContext";
 import AppBackground from "@/components/AppBackground";
-import { Colors } from "@/constants/theme";
+import { AppTheme, Colors } from "@/constants/theme";
 import { GlobalContextProvider } from "@/contexts/GlobalContext";
+import { StatsContextProvider } from "@/contexts/StatsContext";
 import { useDbMigrations } from "@/db";
 
 const AppContent = () => {
@@ -35,6 +36,7 @@ const AppContent = () => {
       >
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="task/[level]" />
+        <Stack.Screen name="stats" />
       </Stack>
     </>
   );
@@ -62,10 +64,12 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={styles.root}>
-      <PaperProvider>
+      <PaperProvider theme={AppTheme}>
         <AuthProvider>
           <GlobalContextProvider>
-            <AppContent />
+            <StatsContextProvider>
+              <AppContent />
+            </StatsContextProvider>
           </GlobalContextProvider>
         </AuthProvider>
       </PaperProvider>

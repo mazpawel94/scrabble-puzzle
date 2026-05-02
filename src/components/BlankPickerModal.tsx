@@ -70,7 +70,9 @@ const LetterCell = React.memo(
           width: cellSize,
           height: cellSize,
           borderRadius: theme.roundness,
-          backgroundColor: active ? "#f8e8c7" : theme.colors.surfaceVariant,
+          backgroundColor: active
+            ? theme.colors.primary
+            : theme.colors.onSecondaryContainer,
           overflow: "hidden",
         }}
       >
@@ -89,7 +91,7 @@ const LetterCell = React.memo(
             style={{
               fontSize: cellSize * 0.4,
               fontWeight: active ? "700" : "400",
-              color: active ? "#023a0a" : theme.colors.onSurfaceVariant,
+              color: active ? "#023a0a" : theme.colors.secondaryContainer,
             }}
           >
             {letter}
@@ -126,10 +128,13 @@ export const BlankPickerModal = ({ onConfirm }: Props) => {
         onDismiss={handleDismiss}
         contentContainerStyle={[
           styles.modal,
-          { backgroundColor: theme.colors.surface },
+          { backgroundColor: theme.colors.secondaryContainer },
         ]}
       >
-        <Text variant="titleMedium" style={styles.title}>
+        <Text
+          variant="titleMedium"
+          style={[styles.title, { color: theme.colors.onSecondaryContainer }]}
+        >
           Zdefiniuj blanka
         </Text>
 
@@ -157,7 +162,7 @@ export const BlankPickerModal = ({ onConfirm }: Props) => {
           disabled={!selected}
           style={styles.button}
           textColor="#023a0a"
-          buttonColor="#f8e8c7"
+          buttonColor={theme.colors.primary}
         >
           OK
         </Button>

@@ -33,7 +33,7 @@ const TileLetter = ({
   if (!font) return null;
   return (
     <Text
-      x={letterX}
+      x={letterX - (letter === "I" || isBlank ? 1 : 0)}
       y={y + letterSize / 2 + letterSize - 3} // Skia: y = baseline
       text={letter.toUpperCase()}
       font={font}

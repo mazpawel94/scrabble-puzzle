@@ -22,7 +22,7 @@ export const ActionBar = ({ actions }: Props) => {
       style={[
         styles.container,
         {
-          backgroundColor: theme.colors.surface,
+          backgroundColor: theme.colors.onSurface,
           borderTopColor: theme.colors.surfaceVariant,
         },
       ]}
@@ -37,18 +37,12 @@ export const ActionBar = ({ actions }: Props) => {
           <MaterialCommunityIcons
             name={action.icon as any}
             size={24}
-            color={
-              action.disabled
-                ? theme.colors.onSurfaceDisabled
-                : theme.colors.onSurface
-            }
+            color={action.disabled ? theme.colors.surface : "white"}
           />
           <Text
             variant="labelSmall"
             style={{
-              color: action.disabled
-                ? theme.colors.onSurfaceDisabled
-                : theme.colors.onSurface,
+              color: action.disabled ? theme.colors.surface : "white",
             }}
           >
             {action.label}
@@ -60,6 +54,7 @@ export const ActionBar = ({ actions }: Props) => {
                 top: 0,
                 right: 5,
                 opacity: action.disabled ? 0.5 : 1,
+                color: "white",
               }}
             >
               {action.number}

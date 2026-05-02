@@ -1,7 +1,8 @@
 import { Task } from "@/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { examples } from "@/utils/examples";
+// import { examples } from "@/utils/examples";
+import { osps50 } from "@/utils/osps50";
 import { useSync } from "./useSync";
 
 // na później do uzupełnienia panel admina
@@ -25,7 +26,7 @@ const useHandleTasks = (userRank: number | null) => {
   const [currentTask, setCurrentTask] = useState<Task | undefined>(undefined);
 
   const [adminTasks, setAdminTasks] = useState(
-    examples.map((el) => ({
+    osps50.map((el) => ({
       ...el,
       id: "0",
       createdAt: new Date().toISOString(),
@@ -91,7 +92,12 @@ const useHandleTasks = (userRank: number | null) => {
     setQueueReady(true);
   }, [diagrams]);
 
-  return { queueReady, nextDiagram, currentTask };
+  return {
+    queueReady,
+    nextDiagram,
+    currentTask,
+    diagramsLength: diagrams.length,
+  };
 };
 
 export default useHandleTasks;

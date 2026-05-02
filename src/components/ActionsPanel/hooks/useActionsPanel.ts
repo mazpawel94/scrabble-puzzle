@@ -5,6 +5,7 @@ import {
   useGlobalActionsContext,
   useGlobalContext,
 } from "@/contexts/GlobalContext";
+import { useStatsActionsContext } from "@/contexts/StatsContext";
 import { deleteDiagram } from "@/db";
 import { useOutbox } from "@/hooks/useOutbox";
 import { postTaskResult } from "@/services/api";
@@ -13,6 +14,14 @@ import {
   convertBoardStateToStringSolution,
   convertWordToLettersArray,
 } from "@/utils/convertCoordinates";
+
+export interface ITaskResult {
+  userId: string;
+  diagramId: string;
+  attempts: number;
+  usedHints: number;
+  correctlySolved: boolean;
+}
 
 const useActionsPanel = () => {
   const {
@@ -24,6 +33,8 @@ const useActionsPanel = () => {
     setUserSolutionTiles,
     setUserRank,
   } = useGlobalActionsContext();
+
+  const { updateStats } = useStatsActionsContext();
 
   const { userId } = useAuth();
 
@@ -57,16 +68,15 @@ const useActionsPanel = () => {
   const handleTaskCompletion = useCallback(
     (isCorrect: boolean) => {
       if (selectedLevel === "unknown") return;
-      postTaskResult(
-        {
-          userId: userId!,
-          diagramId: currentTask!.id,
-          attempts: attemptsCount,
-          usedHints: hintsCount,
-          correctlySolved: isCorrect,
-        },
-        sendOrEnqueue,
-      );
+      const taskResult = {
+        userId: userId!,
+        diagramId: currentTask!.id,
+        attempts: attemptsCount,
+        usedHints: hintsCount,
+        correctlySolved: isCorrect,
+      };
+      updateStats(taskResult);
+      postTaskResult(taskResult, sendOrEnqueue);
     },
     [selectedLevel, currentTask, userId, attemptsCount, hintsCount],
   );
@@ -130,6 +140,7 @@ const useActionsPanel = () => {
 
   const handleNextDiagram = useCallback(async () => {
     await deleteDiagram(currentTask!.id);
+    setUserSolutionTiles([]);
     if (userDiagramRank === 1) nextDiagram((currentTask!.level || -1) + 1);
     else if (userDiagramRank <= -1) nextDiagram((currentTask!.level || 1) - 1);
     else nextDiagram(Math.floor(userRank!));

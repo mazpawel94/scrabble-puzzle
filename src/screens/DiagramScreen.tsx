@@ -68,7 +68,10 @@ export default function DiagramScreen() {
             </View>
           ) : (
             <Text
-              style={[styles.header, { height: height * 0.1 }]}
+              style={[
+                styles.header,
+                { height: height * 0.1, lineHeight: height * 0.1 },
+              ]}
               onPress={handlePress}
             >
               Znajdź najdroższy ruch

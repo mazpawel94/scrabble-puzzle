@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { Portal, Snackbar } from "react-native-paper";
+import { Portal, Snackbar, useTheme } from "react-native-paper";
 
 import {
   useGlobalActionsContext,
@@ -9,6 +9,9 @@ import {
 const Toast = () => {
   const { snackbarMessage } = useGlobalContext();
   const { setSnackbarMessage } = useGlobalActionsContext();
+
+  const theme = useTheme();
+
   if (!snackbarMessage) return null;
   return (
     <Portal>
@@ -21,7 +24,9 @@ const Toast = () => {
         duration={1500}
         style={[
           styles.snackbar,
-          snackbarMessage.includes("Poprawne") ? styles.success : styles.error,
+          snackbarMessage.includes("Poprawne")
+            ? styles.success
+            : { backgroundColor: theme.colors.error },
         ]}
       >
         {snackbarMessage}
@@ -39,8 +44,5 @@ const styles = StyleSheet.create({
   },
   success: {
     backgroundColor: "green",
-  },
-  error: {
-    backgroundColor: "#9e0707",
   },
 });

@@ -20,7 +20,8 @@ const LEXICON_OPTIONS = [
 ];
 
 const AVAILABLE_TAGS = [
-  "OSPS52",
+  // "OSPS52",
+  "OSPS50",
   "sklejki",
   "słownictwo",
   "mostek",

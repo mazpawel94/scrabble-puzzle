@@ -39,6 +39,7 @@ interface IGlobalContext {
   currentLetters: string;
   currentLettersOnBoard: IBoardTile[];
   currentTask: Task | undefined;
+  diagramsLength: number;
   fieldSize: number;
   isAdmin: boolean;
   selectedLevel: LEVEL;
@@ -75,6 +76,7 @@ export const GlobalContext = createContext<IGlobalContext>({
   currentLetters: "",
   currentLettersOnBoard: [],
   currentTask: undefined,
+  diagramsLength: 0,
   fieldSize: 0,
   userRank: null,
   moveIsCorrect: false,
@@ -124,7 +126,8 @@ export const GlobalContextProvider = ({ children }: any) => {
 
   const [userRank, setUserRank] = useState<number | null>(null);
 
-  const { queueReady, currentTask, nextDiagram } = useHandleTasks(userRank);
+  const { queueReady, currentTask, diagramsLength, nextDiagram } =
+    useHandleTasks(userRank);
 
   const currentLetters = useMemo(
     () => currentTask?.letters || "",
@@ -189,6 +192,7 @@ export const GlobalContextProvider = ({ children }: any) => {
     currentLetters,
     currentLettersOnBoard,
     currentTask,
+    diagramsLength,
     fieldSize,
     moveIsCorrect,
     rackLetters,
